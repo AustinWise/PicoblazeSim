@@ -10,13 +10,16 @@ namespace Austin.PicoblazeSim
         private List<OperationInfo> operations = new List<OperationInfo>();
         private Dictionary<byte, Operation> opCodeToOps = new Dictionary<byte, Operation>();
         private Dictionary<string, List<OperationInfo>> opNameToOpInfo = new Dictionary<string, List<OperationInfo>>();
+        private List<string> shifterNames = new List<string>(Enum.GetNames(typeof(ShifterOps)));
 
         public Operations()
         {
             createLogicOps();
             createMathOps();
+            createShifterOps();
             createIoOps();
             createFlowControlOps();
+            createCompareAndTestOps();
 
             foreach (var op in operations)
             {
@@ -37,10 +40,141 @@ namespace Austin.PicoblazeSim
             return opNameToOpInfo[name];
         }
 
+        #region Shifter
+        public bool IsShifterOp(string name)
+        {
+            return shifterNames.Contains(name);
+        }
+
+        public string ShifterFakeName
+        {
+            get
+            {
+                return "__SHIFTER__";
+            }
+        }
+
+        /// <summary>
+        /// Turns the shifter name into a argument that could be used as a constant.
+        /// </summary>
+        /// <param name="shifterName"></param>
+        /// <returns></returns>
+        public string GetShifterArgs(string shifterName)
+        {
+            return "0" + ((byte)Enum.Parse(typeof(ShifterOps), shifterName)).ToString("x");
+        }
+
+        private void createShifterOps()
+        {
+            no(ShifterFakeName, 0x20, new ImmediateOperation(doShifter));
+        }
+
+        private void doShifter(CpuState state, byte reg, byte typeBits)
+        {
+            bool oldCarry;
+            ShifterOps type = (ShifterOps)typeBits;
+            byte val = state.Reg[reg];
+            switch (type)
+            {
+                case ShifterOps.RL:
+                    state.C = (0x80 & val) != 0;
+                    val = (byte)(val << 1);
+                    if (state.C)
+                        val++;
+                    break;
+                case ShifterOps.RR:
+                    state.C = (0x01 & val) == 1;
+                    val = (byte)(val >> 1);
+                    val |= (byte)(state.C ? 0x80 : 0x0);
+                    break;
+                case ShifterOps.SL0:
+                    state.C = (0x80 & val) != 0;
+                    val = (byte)(val << 1);
+                    break;
+                case ShifterOps.SL1:
+                    state.C = (0x80 & val) != 0;
+                    val = (byte)(val << 1);
+                    val |= 0x01;
+                    break;
+                case ShifterOps.SLA:
+                    oldCarry = state.C;
+                    state.C = (0x80 & val) != 0;
+                    val = (byte)(val << 1);
+                    val |= (byte)(oldCarry ? 0x01 : 0x00);
+                    break;
+                case ShifterOps.SLX:
+                    bool oldBottomBit = (0x01 & val) == 1;
+                    state.C = (0x80 & val) != 0;
+                    val = (byte)(val << 1);
+                    val |= (byte)(oldBottomBit ? 0x01 : 0x00);
+                    break;
+                case ShifterOps.SR0:
+                    state.C = (0x01 & val) != 0;
+                    val = (byte)(val >> 1);
+                    break;
+                case ShifterOps.SR1:
+                    state.C = (0x01 & val) != 0;
+                    val = (byte)(val >> 1);
+                    val |= 0x80;
+                    break;
+                case ShifterOps.SRA:
+                    oldCarry = state.C;
+                    state.C = (0x01 & val) != 0;
+                    val = (byte)(val >> 1);
+                    val |= (byte)(oldCarry ? 0x80 : 0x00);
+                    break;
+                case ShifterOps.SRX:
+                    bool oldTopBit = (0x80 & val) == 1;
+                    state.C = (0x01 & val) != 0;
+                    val = (byte)(val >> 1);
+                    val |= (byte)(oldTopBit ? 0x80 : 0x00);
+                    break;
+                default:
+                    throw new NotSupportedException("Unsupported shifter operation.");
+            }
+            state.Reg[reg] = val;
+        }
+
+        private enum ShifterOps : byte
+        {
+            RL = 2,
+            RR = 12,
+            SL0 = 6,
+            SL1 = 7,
+            SLA = 0,
+            SLX = 4,
+            SR0 = 14,
+            SR1 = 15,
+            SRA = 8,
+            SRX = 10
+        }
+        #endregion
+
+        #region Compare and Test
+        private void createCompareAndTestOps()
+        {
+            no("COMPARE", 0x14, new ImmediateOperation((state, a, b) => compare(state, state.Reg[a], b)));
+            no("COMPARE", 0x15, new RegisterOperation((state, a, b) => compare(state, state.Reg[a], state.Reg[b])));
+        }
+
+        private void compare(CpuState state, byte aVal, byte bVal)
+        {
+            state.Z = aVal == bVal;
+            state.C = aVal < bVal;
+        }
+
+        private void test(CpuState state, byte aVal, byte bVal)
+        {
+            state.Z = (aVal & bVal) == 0;
+            //state.C = ;
+        }
+        #endregion
+
         #region Mem/IO
         private void createIoOps()
         {
             no("LOAD", 0x0, new ImmediateOperation((state, a, b) => state.Reg[a] = b));
+            no("LOAD", 0x1, new RegisterOperation((state, a, b) => state.Reg[a] = state.Reg[b]));
 
             no("STORE", 0x2E, new ImmediateOperation((state, a, b) => state.Mem[b] = state.Reg[a]));
             no("STORE", 0x2F, new RegisterOperation((state, a, b) => state.Mem[state.Reg[b]] = state.Reg[a]));
@@ -116,10 +250,10 @@ namespace Austin.PicoblazeSim
             no("ADDCY", 0x1A, new ImmediateOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], b, true)));
             no("ADDCY", 0x1B, new RegisterOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], state.Reg[b], true)));
 
-            no("SUB", 0x1C, new ImmediateOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], b, false)));
-            no("SUB", 0x1D, new RegisterOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], state.Reg[b], false)));
-            no("SUBCY", 0x1E, new ImmediateOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], b, true)));
-            no("SUBCY", 0x1F, new RegisterOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], state.Reg[b], true)));
+            no("SUB", 0x1C, new ImmediateOperation((state, a, b) => state.Reg[a] = sub(state, state.Reg[a], b, false)));
+            no("SUB", 0x1D, new RegisterOperation((state, a, b) => state.Reg[a] = sub(state, state.Reg[a], state.Reg[b], false)));
+            no("SUBCY", 0x1E, new ImmediateOperation((state, a, b) => state.Reg[a] = sub(state, state.Reg[a], b, true)));
+            no("SUBCY", 0x1F, new RegisterOperation((state, a, b) => state.Reg[a] = sub(state, state.Reg[a], state.Reg[b], true)));
         }
 
         private static byte add(CpuState state, byte a, int b, bool cy)

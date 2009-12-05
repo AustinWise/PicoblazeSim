@@ -61,11 +61,80 @@ namespace Austin.PBConsoleFrontend.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to A,1C
+        ///B,32
+        ///C,21
+        ///D,23
+        ///E,24
+        ///F,2B
+        ///G,34
+        ///H,33
+        ///I,43
+        ///J,3B
+        ///K,42
+        ///L,4B
+        ///M,3A
+        ///N,31
+        ///O,44
+        ///P,4D
+        ///Q,15
+        ///R,2D
+        ///S,1B
+        ///T,2C
+        ///U,3C
+        ///V,2A
+        ///W,1D
+        ///X,22
+        ///Y,35
+        ///Z,1A
+        ///D0,45
+        ///D1,16
+        ///D2,1E
+        ///D3,26
+        ///D4,25
+        ///D5,2E
+        ///D6,36
+        ///D7,3D
+        ///D8,3E
+        ///D9,46
+        ///OemMinus,4E
+        ///Subtract,4E
+        ///Backspace,66
+        ///Spacebar,29
+        ///Tab,0D
+        ///Enter,5A
+        ///Escape,76
+        ///F1,5
+        ///F2,6
+        ///F3,4
+        ///F4,0C
+        ///F5,3
+        ///F6,0B
+        ///F7,83
+        ///F8,0A
+        ///F9,1
+        ///F10,9
+        ///F11,78
+        ///F12,7
+        ///UpArrow,75
+        ///LeftArrow,6B
+        ///DownArrow,72
+        ///RightArrow,74
+        ///OemComma,41
+        ///OemPeriod,49.
         /// </summary>
         internal static string KeysToScan {
             get {
                 return ResourceManager.GetString("KeysToScan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string Prog_Rom {
+            get {
+                return ResourceManager.GetString("Prog_Rom", resourceCulture);
             }
         }
     }

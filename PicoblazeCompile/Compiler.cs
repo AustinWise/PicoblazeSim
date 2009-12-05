@@ -10,6 +10,8 @@ namespace Austin.PicoblazeCompile
 {
     public static class Compiler
     {
+        private static readonly string[] AddressOps = new string[] { "CALL", "JUMP" };
+
         public static Dictionary<ushort, uint> Compile(TextReader reader)
         {
             Operations ops = new Operations();
@@ -17,10 +19,12 @@ namespace Austin.PicoblazeCompile
             var tokens = getTokens(reader);
 
             var constants = new Dictionary<string, string>();
-
-            Dictionary<ushort, uint> iMem = new Dictionary<ushort, uint>();
+            var lablels = new Dictionary<string, ushort>();
             ushort iMemPointer = 0;
 
+            var realTokens = new List<string[]>();
+
+            //get constants and lable address
             foreach (var tok in tokens)
             {
                 if (tok[0] == "CONSTANT")
@@ -28,6 +32,43 @@ namespace Austin.PicoblazeCompile
                     constants.Add(tok[1], tok[2]);
                 }
                 else if (tok[0] == "ADDRESS")
+                {
+                    iMemPointer = ushort.Parse(tok[1], NumberStyles.HexNumber);
+                    realTokens.Add(tok);
+                }
+                else
+                {
+                    int colonIndex = tok[0].IndexOf(':');
+                    if (colonIndex != -1)
+                    {
+                        lablels.Add(tok[0].Substring(0, colonIndex), iMemPointer);
+                        tok[0] = tok[0].Remove(0, colonIndex + 1);
+                    }
+
+                    //fix shifter ops
+                    if (ops.IsShifterOp(tok[0]))
+                    {
+                        var newTok = new string[3];
+                        newTok[0] = ops.ShifterFakeName;
+                        newTok[1] = tok[1];
+                        newTok[2] = ops.GetShifterArgs(tok[0]);
+                        realTokens.Add(newTok);
+                    }
+                    else
+                    {
+                    realTokens.Add(tok);
+                    }
+
+                    iMemPointer++;
+                }
+            }
+
+            Dictionary<ushort, uint> iMem = new Dictionary<ushort, uint>();
+            iMemPointer = 0;
+
+            foreach (var tok in realTokens)
+            {
+                if (tok[0] == "ADDRESS")
                 {
                     iMemPointer = ushort.Parse(tok[1], NumberStyles.HexNumber);
                 }
@@ -42,39 +83,60 @@ namespace Austin.PicoblazeCompile
                             break;
                         }
                     }
-                }
-
-                ArgumentType arg1Type = tok.Length > 1 ? getArgType(tok[1]) : ArgumentType.None;
-                ArgumentType arg2Type = tok.Length > 2 ? getArgType(tok[2]) : ArgumentType.None;
-                int argCount = (arg1Type == ArgumentType.None ? 0 : 1) + (arg2Type == ArgumentType.None ? 0 : 1);
-
-                OperationInfo theOp = null;
-                foreach (var canidateOp in ops.Get(tok[0]))
-                {
-                    if (canidateOp.Op.NumberOfArgs == argCount)
+                    //try to insert labels
+                    for (int i = 1; i < tok.Length; i++)
                     {
-                        if ((canidateOp.Op.Arg1 == arg1Type) && (canidateOp.Op.Arg2 == arg2Type))
+                        if (lablels.ContainsKey(tok[i]))
                         {
-                            theOp = canidateOp;
+                            tok[i] = "0" + lablels[tok[i]].ToString("x");
                             break;
                         }
                     }
+
+                    ArgumentType arg1Type = tok.Length > 1 ? getArgType(tok[0], tok[1]) : ArgumentType.None;
+                    ArgumentType arg2Type = tok.Length > 2 ? getArgType(tok[0], tok[2]) : ArgumentType.None;
+                    int argCount = (arg1Type == ArgumentType.None ? 0 : 1) + (arg2Type == ArgumentType.None ? 0 : 1);
+
+                    OperationInfo theOp = null;
+                    foreach (var canidateOp in ops.Get(tok[0]))
+                    {
+                        if (canidateOp.Op.NumberOfArgs == argCount)
+                        {
+                            if ((canidateOp.Op.Arg1 == arg1Type) && (canidateOp.Op.Arg2 == arg2Type))
+                            {
+                                theOp = canidateOp;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (theOp == null)
+                        throw new Exception(String.Format("Could not find a matching op for '{0} {1}'.", tok[0], String.Join(",", tok, 1, tok.Length - 1)));
+
+                    ushort args = 0;
+                    args |= getArg1Value(arg1Type, tok);
+                    args |= getArg2Value(arg2Type, tok);
+
+                    uint instr = (uint)((theOp.OpCode << 12) | args);
+
+                    iMem.Add(iMemPointer, instr);
+                    iMemPointer++;
                 }
-
-                if (theOp == null)
-                    throw new Exception(String.Format("Could not find a matching op for '{0} {1}'.", tok[0], String.Join(",", tok, 1, tok.Length - 1)));
-
-                ushort args = 0;
-                args |= getArg1Value(arg1Type, tok);
-                args |= getArg2Value(arg2Type, tok);
-
-                uint instr = (uint)((theOp.OpCode << 12) | args);
-
-                iMem.Add(iMemPointer, instr);
-                iMemPointer++;
             }
 
             return iMem;
+        }
+
+        private static int[] indexOfBlankInstrs(List<string[]> toks)
+        {
+            List<int> locs = new List<int>();
+            for (int i = 0; i < toks.Count; i++)
+            {
+                if (toks[i][0] == "SR0")
+                    locs.Add(i);
+            }
+            return locs.ToArray();
+
         }
 
         private static ushort getArg1Value(ArgumentType type, string[] tok)
@@ -85,7 +147,7 @@ namespace Austin.PicoblazeCompile
             switch (type)
             {
                 case ArgumentType.Register:
-                    return (ushort)(byte.Parse(value.Remove(0, 1)) << 8);
+                    return (ushort)(byte.Parse(value.Remove(0, 1), NumberStyles.HexNumber) << 8);
                 case ArgumentType.Constant:
                     throw new NotSupportedException("Arg1 can't be a constant.");
                 case ArgumentType.Address:
@@ -107,7 +169,7 @@ namespace Austin.PicoblazeCompile
             switch (type)
             {
                 case ArgumentType.Register:
-                    return (ushort)(byte.Parse(value.Remove(0, 1)) << 4);
+                    return (ushort)(byte.Parse(value.Remove(0, 1), NumberStyles.HexNumber) << 4);
                 case ArgumentType.Constant:
                     return byte.Parse(value, NumberStyles.HexNumber);
                 case ArgumentType.Address:
@@ -121,15 +183,21 @@ namespace Austin.PicoblazeCompile
             }
         }
 
-        private static ArgumentType getArgType(string value)
+        private static ArgumentType getArgType(string op, string value)
         {
             byte res;
             if (value.Length == 1)
                 return ArgumentType.FlagCondition;
-            if (value.StartsWith("s") && isHexNumber(value.Remove(0, 1)))
+            if (value.Length == 2 && value[0] == 'N')
+                return ArgumentType.FlagCondition;
+            if (value.StartsWith("S") && isHexNumber(value.Remove(0, 1)))
                 return ArgumentType.Register;
             if (isHexNumber(value))
+            {
+                if (AddressOps.Contains(op))
+                    return ArgumentType.Address;
                 return ArgumentType.Constant;
+            }
             return ArgumentType.None;
         }
 
@@ -150,14 +218,32 @@ namespace Austin.PicoblazeCompile
             List<string[]> tokens = new List<string[]>();
 
             string line;
+            string addToFront = string.Empty; // for lables
             while ((line = reader.ReadLine()) != null)
             {
-                line = line.Trim();
+                line = addToFront + line.ToUpper().Trim();
+                addToFront = string.Empty;
+
+                if (line.Length == 0)
+                    continue;
+
                 if (line[0] == ';')
                     continue;
                 int commentIndex = line.IndexOf(';');
                 if (commentIndex != -1)
                     line = line.Remove(commentIndex);
+
+                // if a label is all by itself on a line, move it to in front of an instruction
+                if (line.EndsWith(":"))
+                {
+                    addToFront = line;
+                    continue;
+                }
+
+                int colonIndex = line.IndexOf(':');
+                //remove space between colon and op
+                while (colonIndex != -1 && line[colonIndex + 1] == ' ')
+                    line = line.Remove(colonIndex + 1, 1);
 
                 //get instr name
                 int instrEndIndex = line.IndexOf(' ');
@@ -165,7 +251,7 @@ namespace Austin.PicoblazeCompile
                 // no args
                 if (instrEndIndex == -1)
                 {
-                    tokens.Add(new string[] { line.ToUpper() });
+                    tokens.Add(new string[] { line });
                     continue;
                 }
 
