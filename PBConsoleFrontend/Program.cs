@@ -39,56 +39,5 @@ add s0, s1";
                 }
             }
         }
-
-        private static void oldWay()
-        {
-            load(0, 2);
-            load(1, 7);
-            add(0, 2);
-            addReg(0, 1);
-            call((ushort)(iMemPointer + 4));
-            load(0, 0);
-            iMemPointer += 2;
-            addReg(1, 1);
-            add(1, 2);
-            ret();
-        }
-
-        static void ret()
-        {
-            ins(0x2A, 0);
-        }
-
-        static void call(ushort addr)
-        {
-            ins(0x30, addr);
-        }
-
-        static void jump(ushort addr)
-        {
-            ins(0x34, addr);
-        }
-
-        static void load(byte register, byte value)
-        {
-            ins(0, (ushort)((register << 8) | value));
-        }
-
-        static void add(byte register, byte value)
-        {
-            ins(0x18, (ushort)((register << 8) | value));
-        }
-
-        static void addReg(byte rA, byte rB)
-        {
-            ins(0x19, (ushort)((rA << 8) | (rB << 4)));
-        }
-
-        static void ins(byte op, ushort args)
-        {
-            uint instr = (uint)((op << 12) | args);
-            iMem[iMemPointer] = instr;
-            iMemPointer++;
-        }
     }
 }
