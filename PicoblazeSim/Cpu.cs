@@ -26,16 +26,35 @@ namespace Austin.PicoblazeSim
         private Dictionary<ushort, uint> instructionMemory;
         private InstructionFactory ops = new InstructionFactory();
         private bool isRunning = false;
+        private List<IHardwareDevice> devices = new List<IHardwareDevice>();
         private CpuState state;
 
-        public void RegisterInput(byte id, Func<byte> device)
+        public void RegisterHardwareDevice(IHardwareDevice dev)
         {
-            state.InputDevices.Add(id, device);
+            lock (exeSync)
+            {
+                devices.Add(dev);
+                hookupDevice(dev);
+                if (dev is IInterruptor)
+                    ((IInterruptor)dev).Interrupt += new EventHandler(dev_Interrupt);
+            }
         }
 
-        public void RegisterOutput(byte id, Action<byte> device)
+        void dev_Interrupt(object sender, EventArgs e)
         {
-            state.OutputDevices.Add(id, device);
+            this.Interrupt();
+        }
+
+        private void hookupDevice(IHardwareDevice dev)
+        {
+            foreach (var input in dev.InputDevices)
+            {
+                state.InputDevices.Add(input.Key, input.Value);
+            }
+            foreach (var output in dev.OutputDevices)
+            {
+                state.OutputDevices.Add(output.Key, output.Value);
+            }
         }
 
         /// <summary>
@@ -107,6 +126,10 @@ namespace Austin.PicoblazeSim
             {
                 this.isRunning = false;
                 this.state = new CpuState();
+                foreach (var dev in devices)
+                {
+                    hookupDevice(dev);
+                }
             }
         }
     }
