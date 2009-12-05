@@ -77,11 +77,11 @@ namespace Austin.PicoblazeSim
         private void createFlowControlOps()
         {
             no("JUMP", 0x34, new AddressOperation((state, addr) => state.PC = addr));
-            no("JUMP", 0x35, new FlowControlOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? addr : ++state.PC));
+            no("JUMP", 0x35, new FlowControlAddressOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? addr : ++state.PC));
             no("CALL", 0x30, new AddressOperation((state, addr) => state.PC = call(state, addr)));
-            no("CALL", 0x31, new FlowControlOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? call(state, addr) : ++state.PC));
+            no("CALL", 0x31, new FlowControlAddressOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? call(state, addr) : ++state.PC));
             no("RETURN", 0x2A, new ZeroParameterOperation((state) => state.PC = state.CallStack.Pop()));
-            no("RETURN", 0x2B, new FlowControlOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? state.CallStack.Pop() : ++state.PC));
+            no("RETURN", 0x2B, new FlowControlOperation((state, c) => state.PC = flowControlConditional(state, c) ? state.CallStack.Pop() : ++state.PC));
         }
 
         private ushort call(CpuState state, ushort addr)

@@ -52,6 +52,7 @@
     <Compile Include="Cpu.cs" />
     <Compile Include="CpuState.cs" />
     <Compile Include="FlowControlCondition.cs" />
+    <Compile Include="FlowControlAddressOperation.cs" />
     <Compile Include="FlowControlOperation.cs" />
     <Compile Include="NoMoreInstructionsException.cs" />
     <Compile Include="Operation.cs" />

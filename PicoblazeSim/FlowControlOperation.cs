@@ -7,16 +7,16 @@ namespace Austin.PicoblazeSim
 {
     public class FlowControlOperation : Operation
     {
-        public FlowControlOperation(Func<CpuState, FlowControlCondition, ushort, ushort> func)
+        public FlowControlOperation(Func<CpuState, FlowControlCondition, ushort> func)
         {
             this.func = func;
         }
 
-        private Func<CpuState, FlowControlCondition, ushort, ushort> func;
+        private Func<CpuState, FlowControlCondition, ushort> func;
 
         public override void Do(CpuState state, ushort args)
         {
-            state.PC = func(state, (FlowControlCondition)(args >> 10), (ushort)(0x3FF & args));
+            state.PC = func(state, (FlowControlCondition)(args >> 10));
         }
 
         public override ArgumentType Arg1
@@ -24,14 +24,6 @@ namespace Austin.PicoblazeSim
             get
             {
                 return ArgumentType.FlagCondition;
-            }
-        }
-
-        public override ArgumentType Arg2
-        {
-            get
-            {
-                return ArgumentType.Address;
             }
         }
     }

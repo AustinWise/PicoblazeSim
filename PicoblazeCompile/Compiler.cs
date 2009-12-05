@@ -91,7 +91,7 @@ namespace Austin.PicoblazeCompile
                 case ArgumentType.Address:
                     return ushort.Parse(value, NumberStyles.HexNumber);
                 case ArgumentType.FlagCondition:
-                    return (ushort)((ushort)Enum.Parse(typeof(FlowControlCondition), value) << 10);
+                    return (ushort)((byte)Enum.Parse(typeof(FlowControlCondition), value) << 10);
                 case ArgumentType.Bit:
                     throw new NotImplementedException();
                 default:
@@ -124,6 +124,8 @@ namespace Austin.PicoblazeCompile
         private static ArgumentType getArgType(string value)
         {
             byte res;
+            if (value.Length == 1)
+                return ArgumentType.FlagCondition;
             if (value.StartsWith("s") && isHexNumber(value.Remove(0, 1)))
                 return ArgumentType.Register;
             if (isHexNumber(value))

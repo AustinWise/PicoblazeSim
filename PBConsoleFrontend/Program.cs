@@ -16,11 +16,12 @@ namespace Austin.PBConsoleFrontend
         {
             loadKeys();
 
-            string program = @"LOAD s0, 3 ;data
+            string program = @"LOAD s0, 03 ;data
 LOAD s1, 35 ;addr
 STORE s0, s1
 FETCH s1, s1
-OUTPUT s0, 0c";
+OUTPUT s0, 0c
+RETURN C ; does not cause a problem as the flag is not set";
 
 
             iMem = Compiler.Compile(new System.IO.StringReader(program));
