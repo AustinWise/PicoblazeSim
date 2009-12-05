@@ -7,16 +7,17 @@ namespace Austin.PicoblazeSim
 {
     public class BitOperation : Operation
     {
-        public BitOperation(Func<CpuState, bool, ushort> func)
+        public BitOperation(Action<CpuState, bool> func)
         {
             this.func = func;
         }
 
-        private Func<CpuState, bool, ushort> func;
+        private Action<CpuState, bool> func;
 
         public override void Do(CpuState state, ushort args)
         {
-            state.PC = func(state, args != 0);
+            state.PC++;
+            func(state, args != 0);
         }
 
         public override ArgumentType Arg1

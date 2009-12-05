@@ -8,14 +8,14 @@ using System.Globalization;
 
 namespace Austin.PicoblazeCompile
 {
-    public static class Compiler
+    public class Compiler
     {
-        private static readonly string[] AddressOps = new string[] { "CALL", "JUMP" };
+        private readonly string[] AddressOps = new string[] { "CALL", "JUMP" };
 
-        public static Dictionary<ushort, uint> Compile(TextReader reader)
+        private Operations ops = new Operations();
+
+        public Dictionary<ushort, uint> Compile(TextReader reader)
         {
-            Operations ops = new Operations();
-
             var tokens = getTokens(reader);
 
             var constants = new Dictionary<string, string>();
@@ -43,6 +43,8 @@ namespace Austin.PicoblazeCompile
                     {
                         lablels.Add(tok[0].Substring(0, colonIndex), iMemPointer);
                         tok[0] = tok[0].Remove(0, colonIndex + 1);
+                        if (tok[0].Length == 0)
+                            continue;
                     }
 
                     //fix shifter ops
@@ -54,9 +56,20 @@ namespace Austin.PicoblazeCompile
                         newTok[2] = ops.GetShifterArgs(tok[0]);
                         realTokens.Add(newTok);
                     }
+                    else if ((tok[0] == "ENABLE" || tok[0] == "DISABLE") && tok[1] == "INTERRUPT")
+                    {
+                        tok[1] = tok[0] == "ENABLE" ? "01" : "00";
+                        tok[0] = ops.InterruptEnableFakeName;
+                        realTokens.Add(tok);
+                    }
+                    else if ((tok[0] == "ENABLE" || tok[0] == "DISABLE") && tok[1] == "RETURNI")
+                    {
+                        tok[1] = tok[1] == "ENABLE" ? "01" : "00";
+                        realTokens.Add(tok);
+                    }
                     else
                     {
-                    realTokens.Add(tok);
+                        realTokens.Add(tok);
                     }
 
                     iMemPointer++;
@@ -127,19 +140,19 @@ namespace Austin.PicoblazeCompile
             return iMem;
         }
 
-        private static int[] indexOfBlankInstrs(List<string[]> toks)
+        private int[] indexOfBlankInstrs(List<string[]> toks)
         {
             List<int> locs = new List<int>();
             for (int i = 0; i < toks.Count; i++)
             {
-                if (toks[i][0] == "SR0")
+                if (toks[i][0] == "")
                     locs.Add(i);
             }
             return locs.ToArray();
 
         }
 
-        private static ushort getArg1Value(ArgumentType type, string[] tok)
+        private ushort getArg1Value(ArgumentType type, string[] tok)
         {
             if (type == ArgumentType.None)
                 return 0;
@@ -155,13 +168,13 @@ namespace Austin.PicoblazeCompile
                 case ArgumentType.FlagCondition:
                     return (ushort)((byte)Enum.Parse(typeof(FlowControlCondition), value) << 10);
                 case ArgumentType.Bit:
-                    throw new NotImplementedException();
+                    return ushort.Parse(value.Replace("ENABLE", "1").Replace("DISABLE", "0"), NumberStyles.HexNumber);
                 default:
                     throw new NotSupportedException("Unsupported flag");
             }
         }
 
-        private static ushort getArg2Value(ArgumentType type, string[] tok)
+        private ushort getArg2Value(ArgumentType type, string[] tok)
         {
             if (type == ArgumentType.None)
                 return 0;
@@ -183,9 +196,11 @@ namespace Austin.PicoblazeCompile
             }
         }
 
-        private static ArgumentType getArgType(string op, string value)
+        private ArgumentType getArgType(string op, string value)
         {
             byte res;
+            if (op == ops.InterruptEnableFakeName || op == "RETURNI")
+                return ArgumentType.Bit;
             if (value.Length == 1)
                 return ArgumentType.FlagCondition;
             if (value.Length == 2 && value[0] == 'N')
@@ -201,19 +216,19 @@ namespace Austin.PicoblazeCompile
             return ArgumentType.None;
         }
 
-        private static bool isHexNumber(string str)
+        private bool isHexNumber(string str)
         {
-            byte res;
+            ushort res;
             return tryParseHexNumber(str, out res);
         }
 
-        private static NumberFormatInfo numFormInfo = new NumberFormatInfo();
-        private static bool tryParseHexNumber(string str, out byte res)
+        private NumberFormatInfo numFormInfo = new NumberFormatInfo();
+        private bool tryParseHexNumber(string str, out ushort res)
         {
-            return byte.TryParse(str, NumberStyles.HexNumber, numFormInfo, out res);
+            return ushort.TryParse(str, NumberStyles.HexNumber, numFormInfo, out res);
         }
 
-        private static List<string[]> getTokens(TextReader reader)
+        private List<string[]> getTokens(TextReader reader)
         {
             List<string[]> tokens = new List<string[]>();
 
@@ -240,7 +255,15 @@ namespace Austin.PicoblazeCompile
                     continue;
                 }
 
-                int colonIndex = line.IndexOf(':');
+                //remove stacked lables
+                int colonIndex;
+                while ((colonIndex = line.LastIndexOf(':')) != line.IndexOf(':'))
+                {
+                    int toRemoveCount = line.IndexOf(':') + 1;
+                    tokens.Add(new string[] { line.Substring(0, toRemoveCount) });
+                    line = line.Remove(0, toRemoveCount);
+                }
+
                 //remove space between colon and op
                 while (colonIndex != -1 && line[colonIndex + 1] == ' ')
                     line = line.Remove(colonIndex + 1, 1);

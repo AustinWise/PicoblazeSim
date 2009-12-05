@@ -11,6 +11,7 @@ namespace Austin.PicoblazeSim
         private Dictionary<byte, Operation> opCodeToOps = new Dictionary<byte, Operation>();
         private Dictionary<string, List<OperationInfo>> opNameToOpInfo = new Dictionary<string, List<OperationInfo>>();
         private List<string> shifterNames = new List<string>(Enum.GetNames(typeof(ShifterOps)));
+        private List<string> specialOps = new List<string>(new string[] { "ENABLE", "DISABLE", "RETURNI" });
 
         public Operations()
         {
@@ -20,6 +21,9 @@ namespace Austin.PicoblazeSim
             createIoOps();
             createFlowControlOps();
             createCompareAndTestOps();
+            createInterruptOps();
+
+            no("BREAKPOINT", 0xFF, new ZeroParameterOperation((state) => System.Diagnostics.Debugger.Break()));
 
             foreach (var op in operations)
             {
@@ -39,6 +43,21 @@ namespace Austin.PicoblazeSim
         {
             return opNameToOpInfo[name];
         }
+
+        #region Interrupt
+        public string InterruptEnableFakeName
+        {
+            get
+            {
+                return "__INTERRUPT__";
+            }
+        }
+        private void createInterruptOps()
+        {
+            no(InterruptEnableFakeName, 0x3C, new BitOperation((state, yes) => state.EnableInterrupts = yes));
+            no("RETURNI", 0x38, new BitOperation((state, yes) => state.ReturnFromInterrupt(yes)));
+        }
+        #endregion
 
         #region Shifter
         public bool IsShifterOp(string name)
@@ -210,9 +229,9 @@ namespace Austin.PicoblazeSim
         #region Flow Control
         private void createFlowControlOps()
         {
-            no("JUMP", 0x34, new AddressOperation((state, addr) => state.PC = addr));
+            no("JUMP", 0x34, new AddressOperation((state, addr) => addr));
             no("JUMP", 0x35, new FlowControlAddressOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? addr : ++state.PC));
-            no("CALL", 0x30, new AddressOperation((state, addr) => state.PC = call(state, addr)));
+            no("CALL", 0x30, new AddressOperation((state, addr) => call(state, addr)));
             no("CALL", 0x31, new FlowControlAddressOperation((state, c, addr) => state.PC = flowControlConditional(state, c) ? call(state, addr) : ++state.PC));
             no("RETURN", 0x2A, new ZeroParameterOperation((state) => state.PC = state.CallStack.Pop()));
             no("RETURN", 0x2B, new FlowControlOperation((state, c) => state.PC = flowControlConditional(state, c) ? state.CallStack.Pop() : ++state.PC));
@@ -273,7 +292,7 @@ namespace Austin.PicoblazeSim
             state.C = ret < 0;
             state.Z = (ret == 0) || (ret == -256);
 
-            return (byte)(0xFF & Math.Abs(ret));
+            return (byte)(0xFF & ret);
         }
         #endregion
 

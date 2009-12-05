@@ -16,6 +16,7 @@ namespace Austin.PicoblazeSim
 
         public override void Do(CpuState state, ushort args)
         {
+            state.PC++;
             action(state);
         }
     }

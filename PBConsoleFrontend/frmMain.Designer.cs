@@ -1,6 +1,6 @@
 ﻿namespace Austin.PBConsoleFrontend
 {
-    partial class Form1
+    partial class frmMain
     {
         /// <summary>
         /// Required designer variable.
@@ -28,22 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.switches = new System.Windows.Forms.CheckedListBox();
             this.SuspendLayout();
             // 
-            // Form1
+            // switches
+            // 
+            this.switches.FormattingEnabled = true;
+            this.switches.Items.AddRange(new object[] {
+            "SW7",
+            "SW6",
+            "SW5",
+            "SW4",
+            "SW3",
+            "SW2",
+            "SW1",
+            "SW0"});
+            this.switches.Location = new System.Drawing.Point(12, 12);
+            this.switches.Name = "switches";
+            this.switches.Size = new System.Drawing.Size(120, 139);
+            this.switches.TabIndex = 0;
+            // 
+            // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(1009, 726);
-            this.Name = "Form1";
-            this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
+            this.ClientSize = new System.Drawing.Size(504, 353);
+            this.Controls.Add(this.switches);
+            this.Name = "frmMain";
+            this.Text = "PicoBlaze on Nexys2 Simulator";
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.CheckedListBox switches;
     }
 }

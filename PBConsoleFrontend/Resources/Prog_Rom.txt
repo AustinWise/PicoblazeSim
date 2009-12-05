@@ -72,6 +72,7 @@ CONSTANT MEM_BALL_VEL_Y, 26
 
 
 address 000
+			  enable interrupt
 			  
 			  ;clear Seven seg disp
 			  LOAD s0, FF
@@ -98,7 +99,6 @@ main:
             store s0, MEM_BLINK_COUNT1
             sub s1, FF
             jump NZ, main_end
-            ;jump main_sim_skip;
 
             fetch s0, MEM_BLINK_COUNT2
             load s1, s0
@@ -111,9 +111,9 @@ main:
             load s1, s0
             add s0, 01
             store s0, MEM_BLINK_COUNT3
-            sub s1, 02
+            sub s1, 01
             jump NZ, main_end
-main_sim_skip:
+
             ;reset counter
             LOAD s0, 00
             STORE s0, MEM_BLINK_COUNT3
@@ -394,7 +394,146 @@ draw_border:
            
            RETURN
 			  
+isr:
+        ;backup registers
+        STORE s0, MEM_ISR_BACKUP0
+        STORE s1, MEM_ISR_BACKUP1
+        STORE s2, MEM_ISR_BACKUP2
+        STORE s3, MEM_ISR_BACKUP3
+        STORE s4, MEM_ISR_BACKUP4
+        STORE s5, MEM_ISR_BACKUP5
+        STORE s6, MEM_ISR_BACKUP6
+        STORE s7, MEM_ISR_BACKUP7
+        STORE s8, MEM_ISR_BACKUP8
+        STORE s9, MEM_ISR_BACKUP9
+        STORE sA, MEM_ISR_BACKUPA
+        STORE sB, MEM_ISR_BACKUPB
+        STORE sC, MEM_ISR_BACKUPC
+        STORE sD, MEM_ISR_BACKUPD
+        STORE sE, MEM_ISR_BACKUPE
+        STORE sF, MEM_ISR_BACKUPF
+        
+        LOAD s0, 00
+        LOAD s1, 00
+        LOAD s2, 00
+        LOAD s3, 00
+        LOAD s4, 00
+        LOAD s5, 00
+        LOAD s6, 00
+        LOAD s7, 00
+        LOAD s8, 00
+        LOAD s9, 00
+        LOAD sA, 00
+        LOAD sB, 00
+        LOAD sC, 00
+        LOAD sD, 00
+        LOAD sE, 00
+        LOAD sF, 00
+        
+        
+        INPUT s0, KEYBOARD
+        FETCH s1, MEM_XPADDLE
+        FETCH s2, MEM_YPADDLE
+        FETCH s3, MEM_IGNORE_KEY
+        
+        ;see if the ignore key bit is set
+        COMPARE s3, ff
+        JUMP NZ, isr_ignore_key
+        
+        ;clear the ignore key bit
+        load s3, 00
+        jump end_isr
+        
+isr_ignore_key:
+        COMPARE s0, KEY_RELEASED
+        JUMP NZ, isr_try_left
+        
+        ;set ignore bit
+        load s3, ff
+        jump end_isr
+        
+isr_try_left:
+        COMPARE s0, KEY_LEFT
+        JUMP NZ, isr_try_right
+        
+        ;move left        
+        SUB s1, 01        
+        jump end_isr
+        
+isr_try_right:
+        COMPARE s0, KEY_RIGHT
+        JUMP NZ, isr_try_up
+        
+        ;move right        
+        ADD s1, 01
+        jump end_isr
+        
+isr_try_up:
+        COMPARE s0, KEY_UP
+        JUMP NZ, isr_try_down
+        
+        ;move up        
+        SUB s2, 01
+        jump end_isr
+        
+isr_try_down:
+        COMPARE s0, KEY_DOWN
+        JUMP NZ, end_isr
+        
+        ;move up        
+        ADD s2, 01
+        jump end_isr
+        
+end_isr:
 
+        ;make sure the paddles don't go off the screen
+isr_lower_bound_x:
+        COMPARE s1, 00
+        JUMP NZ, isr_upper_bound_x
+        LOAD s1, 01
+isr_upper_bound_x:
+        LOAD sF, BOUNDS_X
+        SUB sF, PADDLE_WIDTH
+        COMPARE s1, sF
+        JUMP NZ, isr_lower_bound_y
+        SUB s1, 01
+isr_lower_bound_y:
+        COMPARE s2, 00
+        JUMP NZ, isr_upper_bound_y
+        LOAD s2, 01
+isr_upper_bound_y:
+        LOAD sF, BOUNDS_Y
+        SUB sF, PADDLE_WIDTH
+        COMPARE s2, sF
+        JUMP NZ, isr_bound_done
+        SUB s2, 01
+isr_bound_done:
+
+        STORE s1, MEM_XPADDLE
+        STORE s2, MEM_YPADDLE
+        STORE s3, MEM_IGNORE_KEY
+        
+        OUTPUT s0, LEDS
+
+        ;restore registers
+        FETCH s0, MEM_ISR_BACKUP0
+        FETCH s1, MEM_ISR_BACKUP1
+        FETCH s2, MEM_ISR_BACKUP2
+        FETCH s3, MEM_ISR_BACKUP3
+        FETCH s4, MEM_ISR_BACKUP4
+        FETCH s5, MEM_ISR_BACKUP5
+        FETCH s6, MEM_ISR_BACKUP6
+        FETCH s7, MEM_ISR_BACKUP7
+        FETCH s8, MEM_ISR_BACKUP8
+        FETCH s9, MEM_ISR_BACKUP9
+        FETCH sA, MEM_ISR_BACKUPA
+        FETCH sB, MEM_ISR_BACKUPB
+        FETCH sC, MEM_ISR_BACKUPC
+        FETCH sD, MEM_ISR_BACKUPD
+        FETCH sE, MEM_ISR_BACKUPE
+        FETCH sF, MEM_ISR_BACKUPF
+        
+			  returni enable
 
 
 
@@ -489,4 +628,7 @@ box_loop:       call      draw_hline; inputs: s4, s5, s6 and s7
 exit_box:       load      s4, sF
                 return                
 
+
+address 3ff
+					jump isr
 

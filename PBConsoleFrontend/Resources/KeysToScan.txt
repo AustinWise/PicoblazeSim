@@ -36,8 +36,8 @@ D8,3E
 D9,46
 OemMinus,4E
 Subtract,4E
-Backspace,66
-Spacebar,29
+Back,66
+Space,29
 Tab,0D
 Enter,5A
 Escape,76
@@ -53,9 +53,7 @@ F9,1
 F10,9
 F11,78
 F12,7
-UpArrow,75
-LeftArrow,6B
-DownArrow,72
-RightArrow,74
-OemComma,41
-OemPeriod,49
+Up,75
+Left,6B
+Down,72
+Right,74

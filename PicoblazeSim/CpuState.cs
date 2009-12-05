@@ -14,6 +14,8 @@ namespace Austin.PicoblazeSim
             this.OutputDevices = new Dictionary<byte, Action<byte>>();
             this.Reg = new byte[16];
             this.Mem = new byte[64];
+            this.EnableInterrupts = false;
+            this.PC = 0;
         }
 
         public Dictionary<byte, Func<byte>> InputDevices
@@ -68,6 +70,24 @@ namespace Austin.PicoblazeSim
         {
             get;
             private set;
+        }
+
+        public bool EnableInterrupts
+        {
+            get;
+            set;
+        }
+
+        public ushort InterruptedPC
+        {
+            get;
+            set;
+        }
+
+        public void ReturnFromInterrupt(bool reenable)
+        {
+            this.PC = InterruptedPC;
+            this.EnableInterrupts = reenable;
         }
     }
 }

@@ -18,6 +18,11 @@ namespace Austin.PBConsoleFrontend
             InitializeComponent();
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Program.cpu.Start();
+        }
+
         private Dictionary<byte, Brush> brushes = new Dictionary<byte, Brush>();
 
         public void WritePixle(int x, int y, byte color)
@@ -52,6 +57,12 @@ namespace Austin.PBConsoleFrontend
             if (lowBit)
                 val |= ((int)Math.Pow(2, places + 1) - 1);
             return val;
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            Program.lastKeyPressed = e.KeyData;
+            Program.cpu.Interrupt();
         }
     }
 }
