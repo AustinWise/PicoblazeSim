@@ -16,24 +16,19 @@ namespace Austin.PBConsoleFrontend
         private Dictionary<Keys, byte> consoleKeyToScanCodes = new Dictionary<Keys, byte>();
 
         private Cpu cpu;
+        private Compiler comp = new Compiler();
         private SwitchesDevice switchDev;
-        private KeyboardDevice keyDev;
         private frmVga vgaDev;
 
         public frmMain()
         {
             InitializeComponent();
 
-            var iMem = new Compiler().Compile(new StringReader(Properties.Resources.Prog_Rom));
-            cpu = new Cpu(iMem);
-
-            cpu.RegisterHardwareDevice(switchDev = new SwitchesDevice());
-            cpu.RegisterHardwareDevice(vgaDev = new frmVga());
+            vgaDev = new frmVga();
             vgaDev.Show();
-            //cpu.RegisterHardwareDevice(keyDev = new KeyboardDevice());
-            cpu.RegisterHardwareDevice(new SevenSegmentDevice());
-            cpu.RegisterHardwareDevice(new ButtonsDevice());
-            cpu.RegisterHardwareDevice(new LedDevice());
+            switchDev = new SwitchesDevice();
+
+            this.txtSrc.Text = Properties.Resources.Prog_Rom;
         }
 
         private static void doNothing(byte data)
@@ -42,12 +37,32 @@ namespace Austin.PBConsoleFrontend
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            Dictionary<ushort, uint> iMem;
+            try
+            {
+                iMem = comp.Compile(new StringReader(txtSrc.Text));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Failed to compile.");
+                return;
+            }
+
+            cpu = new Cpu(iMem);
+
+            cpu.RegisterHardwareDevice(switchDev);
+            cpu.RegisterHardwareDevice(vgaDev);
+            cpu.RegisterHardwareDevice(new SevenSegmentDevice());
+            cpu.RegisterHardwareDevice(new ButtonsDevice());
+            cpu.RegisterHardwareDevice(new LedDevice());
+
             this.cpu.Start();
         }
 
         private void btnReset_Click(object sender, EventArgs e)
         {
             this.cpu.Reset();
+            vgaDev.Clear();
         }
 
         private void switches_ItemCheck(object sender, ItemCheckEventArgs e)

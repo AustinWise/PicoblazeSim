@@ -32,6 +32,14 @@ namespace Austin.PBConsoleFrontend
 
         private Dictionary<byte, Brush> brushes = new Dictionary<byte, Brush>();
 
+        public void Clear()
+        {
+            Graphics g = this.CreateGraphics();
+            g.Clear(Color.Black);
+            g.Dispose();
+
+        }
+
         public void WritePixle(int x, int y, byte color)
         {
             x = x * pixleSize;
@@ -55,6 +63,7 @@ namespace Austin.PBConsoleFrontend
 
             Graphics g = this.CreateGraphics();
             g.FillRectangle(pen, x, y, pixleSize, pixleSize);
+            g.Dispose();
         }
 
         private int shiftLeftExtend(int val, int places)

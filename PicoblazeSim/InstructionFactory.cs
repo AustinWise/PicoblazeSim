@@ -191,6 +191,8 @@ namespace Austin.PicoblazeSim
         {
             add("COMPARE", 0x14, new ImmediateOperation((state, a, b) => compare(state, state.RegisterFile[a], b)));
             add("COMPARE", 0x15, new RegisterOperation((state, a, b) => compare(state, state.RegisterFile[a], state.RegisterFile[b])));
+            add("TEST", 0x12, new ImmediateOperation((state, a, b) => test(state, state.RegisterFile[a], b)));
+            add("TEST", 0x13, new RegisterOperation((state, a, b) => test(state, state.RegisterFile[a], state.RegisterFile[b])));
         }
 
         private void compare(CpuState state, byte aVal, byte bVal)
@@ -202,7 +204,18 @@ namespace Austin.PicoblazeSim
         private void test(CpuState state, byte aVal, byte bVal)
         {
             state.ZeroFlag = (aVal & bVal) == 0;
-            //state.C = ;
+
+            //odd parity for C flag
+            var xor = aVal ^ bVal;
+            int count = 0;
+            int mask = 0x80;
+            while (mask != 0)
+            {
+                if ((mask & xor) != 0)
+                    count++;
+                mask = mask >> 1;
+            }
+            state.CarryFlag = (count % 2) == 0;
         }
         #endregion
 
