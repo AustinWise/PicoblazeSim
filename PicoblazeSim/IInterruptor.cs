@@ -5,11 +5,8 @@ using System.Text;
 
 namespace Austin.PicoblazeSim
 {
-    internal enum FlowControlCondition : byte
+    public class IInterruptor
     {
-        Z = 0,
-        NZ = 1,
-        C = 2,
-        NC = 3
+        event EventHandler Interrupt;
     }
 }

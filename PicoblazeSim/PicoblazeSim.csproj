@@ -46,22 +46,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddressOperation.cs" />
+    <Compile Include="Compiler.cs" />
+    <Compile Include="IInterruptor.cs" />
+    <Compile Include="Operations\AddressOperation.cs" />
     <Compile Include="ArgumentType.cs" />
-    <Compile Include="BitOperation.cs" />
+    <Compile Include="Operations\BitOperation.cs" />
     <Compile Include="Cpu.cs" />
     <Compile Include="CpuState.cs" />
     <Compile Include="FlowControlCondition.cs" />
-    <Compile Include="FlowControlAddressOperation.cs" />
-    <Compile Include="FlowControlOperation.cs" />
+    <Compile Include="Operations\FlowControlAddressOperation.cs" />
+    <Compile Include="Operations\FlowControlOperation.cs" />
     <Compile Include="NoMoreInstructionsException.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="OperationInfo.cs" />
-    <Compile Include="Operations.cs" />
+    <Compile Include="InstructionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ImmediateOperation.cs" />
-    <Compile Include="RegisterOperation.cs" />
-    <Compile Include="ZeroParameterOperation.cs" />
+    <Compile Include="Operations\ImmediateOperation.cs" />
+    <Compile Include="Operations\RegisterOperation.cs" />
+    <Compile Include="Operations\ZeroParameterOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

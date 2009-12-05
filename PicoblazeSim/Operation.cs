@@ -5,10 +5,21 @@ using System.Text;
 
 namespace Austin.PicoblazeSim
 {
-    public abstract class Operation
+    /// <summary>
+    /// Represents an operation in the CPU.
+    /// </summary>
+    internal abstract class Operation
     {
+        /// <summary>
+        /// Executes the operation on the given CPU state with the given arguments.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="args"></param>
         public abstract void Do(CpuState state, ushort args);
 
+        /// <summary>
+        /// The type of the first argument to this operation.
+        /// </summary>
         public virtual ArgumentType Arg1
         {
             get
@@ -17,6 +28,9 @@ namespace Austin.PicoblazeSim
             }
         }
 
+        /// <summary>
+        /// The type of the second argument to this operation.
+        /// </summary>
         public virtual ArgumentType Arg2
         {
             get
@@ -25,6 +39,9 @@ namespace Austin.PicoblazeSim
             }
         }
 
+        /// <summary>
+        /// The number of arguments this operation uses.
+        /// </summary>
         public int NumberOfArgs
         {
             get

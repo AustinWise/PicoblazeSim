@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Austin.PicoblazeSim
+namespace Austin.PicoblazeSim.Operations
 {
-    public class FlowControlOperation : Operation
+    internal class FlowControlOperation : Operation
     {
         public FlowControlOperation(Func<CpuState, FlowControlCondition, ushort> func)
         {
@@ -16,7 +16,7 @@ namespace Austin.PicoblazeSim
 
         public override void Do(CpuState state, ushort args)
         {
-            state.PC = func(state, (FlowControlCondition)(args >> 10));
+            state.ProgramCounter = func(state, (FlowControlCondition)(args >> 10));
         }
 
         public override ArgumentType Arg1

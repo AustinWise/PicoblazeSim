@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Austin.PicoblazeSim
 {
-    public class OperationInfo
+    internal class OperationInfo
     {
         public OperationInfo(byte opCode, string name, Operation op)
         {

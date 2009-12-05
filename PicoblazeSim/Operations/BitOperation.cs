@@ -3,27 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Austin.PicoblazeSim
+namespace Austin.PicoblazeSim.Operations
 {
-    public class AddressOperation : Operation
+    internal class BitOperation : Operation
     {
-        public AddressOperation(Func<CpuState, ushort, ushort> func)
+        public BitOperation(Action<CpuState, bool> func)
         {
             this.func = func;
         }
 
-        private Func<CpuState, ushort, ushort> func;
+        private Action<CpuState, bool> func;
 
         public override void Do(CpuState state, ushort args)
         {
-            state.PC = func(state, (ushort)args);
+            state.ProgramCounter++;
+            func(state, args != 0);
         }
 
         public override ArgumentType Arg1
         {
             get
             {
-                return ArgumentType.Address;
+                return ArgumentType.Bit;
             }
         }
     }

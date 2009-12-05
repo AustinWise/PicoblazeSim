@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Austin.PicoblazeSim
 {
-    public enum ArgumentType
+    internal enum ArgumentType
     {
         None,
         Register,

@@ -6,8 +6,11 @@ using System.IO;
 using Austin.PicoblazeSim;
 using System.Globalization;
 
-namespace Austin.PicoblazeCompile
+namespace Austin.PicoblazeSim
 {
+    /// <summary>
+    /// Compiles text PicoBlaze programs into instructions.  The inscructions should be the same as the KCPSM3.EXE would generate.
+    /// </summary>
     public class Compiler
     {
         private readonly string[] AddressOps = new string[] { "CALL", "JUMP" };
@@ -47,7 +50,7 @@ namespace Austin.PicoblazeCompile
                             continue;
                     }
 
-                    //fix shifter ops
+                    //fix shifter ops and whatnot
                     if (ops.IsShifterOp(tok[0]))
                     {
                         var newTok = new string[3];
@@ -79,6 +82,7 @@ namespace Austin.PicoblazeCompile
             Dictionary<ushort, uint> iMem = new Dictionary<ushort, uint>();
             iMemPointer = 0;
 
+            // convert the fixed tokens into inscructions
             foreach (var tok in realTokens)
             {
                 if (tok[0] == "ADDRESS")
@@ -228,6 +232,12 @@ namespace Austin.PicoblazeCompile
             return ushort.TryParse(str, NumberStyles.HexNumber, numFormInfo, out res);
         }
 
+        /// <summary>
+        /// Gets raw tokens from the file.  Removes comments, puts lables next to the neareast command (without touching another command),
+        /// and splits up command names and args.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         private List<string[]> getTokens(TextReader reader)
         {
             List<string[]> tokens = new List<string[]>();
@@ -242,6 +252,7 @@ namespace Austin.PicoblazeCompile
                 if (line.Length == 0)
                     continue;
 
+                //remove comments
                 if (line[0] == ';')
                     continue;
                 int commentIndex = line.IndexOf(';');
@@ -278,14 +289,17 @@ namespace Austin.PicoblazeCompile
                     continue;
                 }
 
+                //get the command name
                 string instrName = line.Substring(0, instrEndIndex).ToUpper(); ;
 
                 //remove spaces between args
                 line = line.Remove(0, instrEndIndex + 1);
                 line = line.Replace(" ", string.Empty);
 
+                //split args
                 string[] args = line.Split(',');
 
+                //put token together
                 string[] token = new string[args.Length + 1];
                 token[0] = instrName;
                 Array.Copy(args, 0, token, 1, args.Length);

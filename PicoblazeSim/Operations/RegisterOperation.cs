@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Austin.PicoblazeSim
+namespace Austin.PicoblazeSim.Operations
 {
-    public class RegisterOperation : Operation
+    internal class RegisterOperation : Operation
     {
         public RegisterOperation(Action<CpuState, byte, byte> action)
         {
@@ -16,7 +16,7 @@ namespace Austin.PicoblazeSim
 
         public override void Do(CpuState state, ushort args)
         {
-            state.PC++;
+            state.ProgramCounter++;
             action(state, (byte)(args >> 8), (byte)(0xF & (args >> 4)));
         }
 

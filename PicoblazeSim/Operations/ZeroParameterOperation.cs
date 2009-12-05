@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Austin.PicoblazeSim
+namespace Austin.PicoblazeSim.Operations
 {
-    public class ZeroParameterOperation:Operation
+    internal class ZeroParameterOperation : Operation
     {
         public ZeroParameterOperation(Action<CpuState> action)
         {
@@ -16,7 +16,7 @@ namespace Austin.PicoblazeSim
 
         public override void Do(CpuState state, ushort args)
         {
-            state.PC++;
+            state.ProgramCounter++;
             action(state);
         }
     }
