@@ -13,8 +13,9 @@ namespace Austin.PicoblazeSim
 
         public Operations()
         {
+            createLogicOps();
             createMathOps();
-            createMemoryOps();
+            createIoOps();
             createFlowControlOps();
 
             foreach (var op in operations)
@@ -36,10 +37,41 @@ namespace Austin.PicoblazeSim
             return opNameToOpInfo[name];
         }
 
-        private void createMemoryOps()
+        #region Mem/IO
+        private void createIoOps()
         {
             no("LOAD", 0x0, new ImmediateOperation((state, a, b) => state.Reg[a] = b));
+
+            no("STORE", 0x2E, new ImmediateOperation((state, a, b) => state.Mem[b] = state.Reg[a]));
+            no("STORE", 0x2F, new RegisterOperation((state, a, b) => state.Mem[state.Reg[b]] = state.Reg[a]));
+            no("FETCH", 0x6, new ImmediateOperation((state, a, b) => state.Reg[a] = state.Mem[b]));
+            no("FETCH", 0x7, new RegisterOperation((state, a, b) => state.Reg[a] = state.Mem[state.Reg[b]]));
+
+            no("INPUT", 0x5, new RegisterOperation((state, a, b) => state.Reg[a] = state.InputDevices[state.Reg[b]]()));
+            no("INPUT", 0x4, new ImmediateOperation((state, a, b) => state.Reg[a] = state.InputDevices[b]()));
+            no("OUTPUT", 0x2D, new RegisterOperation((state, a, b) => state.OutputDevices[state.Reg[b]](state.Reg[a])));
+            no("OUTPUT", 0x2C, new ImmediateOperation((state, a, b) => state.OutputDevices[b](state.Reg[a])));
         }
+        #endregion
+
+        #region Logic
+        private void createLogicOps()
+        {
+            no("AND", 0xA, new ImmediateOperation((state, a, b) => state.Reg[a] = doLogic(state, state.Reg[a] & b)));
+            no("AND", 0xB, new RegisterOperation((state, a, b) => state.Reg[a] = doLogic(state, state.Reg[a] & state.Reg[b])));
+            no("OR", 0xC, new ImmediateOperation((state, a, b) => state.Reg[a] = doLogic(state, state.Reg[a] | b)));
+            no("OR", 0xD, new RegisterOperation((state, a, b) => state.Reg[a] = doLogic(state, state.Reg[a] | state.Reg[b])));
+            no("XOR", 0xE, new ImmediateOperation((state, a, b) => state.Reg[a] = doLogic(state, state.Reg[a] ^ b)));
+            no("XOR", 0xF, new RegisterOperation((state, a, b) => state.Reg[a] = doLogic(state, state.Reg[a] ^ state.Reg[b])));
+        }
+
+        private byte doLogic(CpuState state, int value)
+        {
+            state.Z = value == 0;
+            state.C = false;
+            return (byte)value;
+        }
+        #endregion
 
         #region Flow Control
         private void createFlowControlOps()
@@ -86,8 +118,8 @@ namespace Austin.PicoblazeSim
 
             no("SUB", 0x1C, new ImmediateOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], b, false)));
             no("SUB", 0x1D, new RegisterOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], state.Reg[b], false)));
-            no("SUBCY", 0x2E, new ImmediateOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], b, true)));
-            no("SUBCY", 0x2F, new RegisterOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], state.Reg[b], true)));
+            no("SUBCY", 0x1E, new ImmediateOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], b, true)));
+            no("SUBCY", 0x1F, new RegisterOperation((state, a, b) => state.Reg[a] = add(state, state.Reg[a], state.Reg[b], true)));
         }
 
         private static byte add(CpuState state, byte a, int b, bool cy)

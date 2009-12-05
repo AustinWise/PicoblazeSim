@@ -113,9 +113,9 @@ namespace Austin.PicoblazeCompile
                 case ArgumentType.Address:
                     return ushort.Parse(value, NumberStyles.HexNumber);
                 case ArgumentType.FlagCondition:
-                    throw new NotSupportedException("Arg1 can't be a flow control condition.");
+                    throw new NotSupportedException("Arg2 can't be a flow control condition.");
                 case ArgumentType.Bit:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException("Arg2 can't be a bit.");
                 default:
                     throw new NotSupportedException("Unsupported flag");
             }

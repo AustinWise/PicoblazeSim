@@ -10,7 +10,22 @@ namespace Austin.PicoblazeSim
         public CpuState()
         {
             this.CallStack = new Stack<ushort>();
+            this.InputDevices = new Dictionary<byte, Func<byte>>();
+            this.OutputDevices = new Dictionary<byte, Action<byte>>();
             this.Reg = new byte[16];
+            this.Mem = new byte[64];
+        }
+
+        public Dictionary<byte, Func<byte>> InputDevices
+        {
+            get;
+            private set;
+        }
+
+        public Dictionary<byte, Action<byte>> OutputDevices
+        {
+            get;
+            private set;
         }
 
         bool InterruptEnabled
@@ -32,6 +47,12 @@ namespace Austin.PicoblazeSim
         }
 
         public byte[] Reg
+        {
+            get;
+            private set;
+        }
+
+        public byte[] Mem
         {
             get;
             private set;

@@ -15,7 +15,18 @@ namespace Austin.PicoblazeSim
 
         private Dictionary<ushort, uint> instructionMemory;
         private Operations ops = new Operations();
-        
+
+
+        public void RegisterInput(byte id, Func<byte> device)
+        {
+            State.InputDevices.Add(id, device);
+        }
+
+        public void RegisterOutput(byte id, Action<byte> device)
+        {
+            State.OutputDevices.Add(id, device);
+        }
+
 
         public CpuState State
         {
