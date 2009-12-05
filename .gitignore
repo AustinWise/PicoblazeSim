@@ -1,0 +1,6 @@
+*.vssscc
+*.suo
+*proj.vspscc
+*proj.user
+bin
+obj

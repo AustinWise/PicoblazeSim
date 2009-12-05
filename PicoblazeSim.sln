@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicoblazeSim", "PicoblazeSim\PicoblazeSim.csproj", "{93FB403C-951A-413F-8188-90416B91BF54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PBConsoleFrontend", "PBConsoleFrontend\PBConsoleFrontend.csproj", "{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicoblazeCompile", "PicoblazeCompile\PicoblazeCompile.csproj", "{B23C740B-A4FC-4EB6-88E0-62DF88DC7F9C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{93FB403C-951A-413F-8188-90416B91BF54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93FB403C-951A-413F-8188-90416B91BF54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93FB403C-951A-413F-8188-90416B91BF54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93FB403C-951A-413F-8188-90416B91BF54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B23C740B-A4FC-4EB6-88E0-62DF88DC7F9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B23C740B-A4FC-4EB6-88E0-62DF88DC7F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B23C740B-A4FC-4EB6-88E0-62DF88DC7F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B23C740B-A4FC-4EB6-88E0-62DF88DC7F9C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
