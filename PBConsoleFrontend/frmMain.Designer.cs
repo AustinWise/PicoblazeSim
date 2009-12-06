@@ -32,6 +32,7 @@
             this.btnStart = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
             this.txtSrc = new System.Windows.Forms.TextBox();
+            this.lblInstructionsPerSec = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // switches
@@ -84,12 +85,23 @@
             this.txtSrc.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtSrc.Size = new System.Drawing.Size(487, 396);
             this.txtSrc.TabIndex = 2;
+            this.txtSrc.WordWrap = false;
+            // 
+            // lblInstructionsPerSec
+            // 
+            this.lblInstructionsPerSec.AutoSize = true;
+            this.lblInstructionsPerSec.Location = new System.Drawing.Point(12, 226);
+            this.lblInstructionsPerSec.Name = "lblInstructionsPerSec";
+            this.lblInstructionsPerSec.Size = new System.Drawing.Size(21, 13);
+            this.lblInstructionsPerSec.TabIndex = 3;
+            this.lblInstructionsPerSec.Text = "{0}";
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(637, 420);
+            this.Controls.Add(this.lblInstructionsPerSec);
             this.Controls.Add(this.txtSrc);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnStart);
@@ -107,5 +119,6 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.TextBox txtSrc;
+        private System.Windows.Forms.Label lblInstructionsPerSec;
     }
 }

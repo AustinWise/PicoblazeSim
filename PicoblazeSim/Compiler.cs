@@ -115,7 +115,16 @@ namespace Austin.PicoblazeSim
                     int argCount = (arg1Type == ArgumentType.None ? 0 : 1) + (arg2Type == ArgumentType.None ? 0 : 1);
 
                     OperationInfo theOp = null;
-                    foreach (var canidateOp in ops.Get(tok[0]))
+                    List<OperationInfo> canidateOperations;
+                    try
+                    {
+                        canidateOperations = ops.Get(tok[0]);
+                    }
+                    catch (KeyNotFoundException ex)
+                    {
+                        throw new KeyNotFoundException(string.Format("No instruction by the name of '{0}' exists.", tok[0]), ex);
+                    }
+                    foreach (var canidateOp in canidateOperations)
                     {
                         if (canidateOp.Op.NumberOfArgs == argCount)
                         {

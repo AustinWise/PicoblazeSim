@@ -18,16 +18,27 @@ namespace Austin.PicoblazeSim
         /// <param name="iMem">instruction memory, mapping memory location to instruction</param>
         public Cpu(Dictionary<ushort, uint> iMem)
         {
-            this.instructionMemory = iMem;
+            this.instructionMemory = new uint[0x400];
+            for (ushort i = 0; i < 0x400; i++)
+            {
+                if (iMem.ContainsKey(i))
+                    instructionMemory[i] = iMem[i];
+            }
             this.state = new CpuState();
         }
 
         private object exeSync = new object();
-        private Dictionary<ushort, uint> instructionMemory;
+        private uint[] instructionMemory;
         private InstructionFactory ops = new InstructionFactory();
         private bool isRunning = false;
         private List<IHardwareDevice> devices = new List<IHardwareDevice>();
         private CpuState state;
+        private bool interruptFlag = false;
+        private Thread runThread;
+
+        private long tickCount;
+        private DateTime startTime;
+        private DateTime endTime;
 
         public void RegisterHardwareDevice(IHardwareDevice dev)
         {
@@ -62,28 +73,24 @@ namespace Austin.PicoblazeSim
         /// </summary>
         public void Start()
         {
-            lock (exeSync)
-            {
-                if (isRunning)
-                    return;
-                isRunning = true;
-                ThreadPool.QueueUserWorkItem(new WaitCallback(loop));
-            }
+            if (isRunning)
+                return;
+            if (runThread != null && runThread.IsAlive)
+                runThread.Join();
+            isRunning = true;
+            runThread = new Thread(new ThreadStart(loop));
+            runThread.Start();
         }
 
-        private void loop(object noUsed)
+        private void loop()
         {
+            tickCount = 0;
+            startTime = DateTime.Now;
             while (isRunning)
             {
-                try
-                {
-                    Tick();
-                }
-                catch (NoMoreInstructionsException)
-                {
-                    isRunning = false;
-                }
+                Tick();
             }
+            this.endTime = DateTime.Now;
         }
 
         /// <summary>
@@ -91,15 +98,18 @@ namespace Austin.PicoblazeSim
         /// </summary>
         public void Tick()
         {
-            lock (exeSync)
+            if (interruptFlag)
             {
-                if (!instructionMemory.ContainsKey(state.ProgramCounter))
-                    throw new NoMoreInstructionsException();
-                uint instruction = this.instructionMemory[state.ProgramCounter];
-                byte opCode = (byte)(instruction >> 12);
-                ushort args = (ushort)(0XFFF & instruction);
-                ops.Get(opCode).Do(state, args);
+                interruptFlag = false;
+                this.state.EnableInterrupts = false;
+                this.state.InterruptedProgramCounter = this.state.ProgramCounter;
+                this.state.ProgramCounter = 0x3ff;
             }
+            uint instruction = this.instructionMemory[state.ProgramCounter];
+            byte opCode = (byte)(instruction >> 12);
+            ushort args = (ushort)(0XFFF & instruction);
+            ops.Get(opCode).Do(state, args);
+            tickCount++;
         }
 
         /// <summary>
@@ -107,14 +117,8 @@ namespace Austin.PicoblazeSim
         /// </summary>
         public void Interrupt()
         {
-            lock (exeSync)
-            {
-                if (!this.state.EnableInterrupts)
-                    return;
-                this.state.EnableInterrupts = false;
-                this.state.InterruptedProgramCounter = this.state.ProgramCounter;
-                this.state.ProgramCounter = 0x3ff;
-            }
+            if (state.EnableInterrupts)
+                this.interruptFlag = true;
         }
 
         /// <summary>
@@ -122,14 +126,28 @@ namespace Austin.PicoblazeSim
         /// </summary>
         public void Reset()
         {
-            lock (exeSync)
+            this.isRunning = false;
+            runThread.Join();
+            this.state = new CpuState();
+            foreach (var dev in devices)
             {
-                this.isRunning = false;
-                this.state = new CpuState();
-                foreach (var dev in devices)
-                {
-                    hookupDevice(dev);
-                }
+                hookupDevice(dev);
+            }
+        }
+
+        public double InstructionsPerSecond
+        {
+            get
+            {
+                return tickCount / (endTime.Subtract(startTime).TotalSeconds);
+            }
+        }
+
+        public bool IsRunning
+        {
+            get
+            {
+                return this.isRunning;
             }
         }
     }

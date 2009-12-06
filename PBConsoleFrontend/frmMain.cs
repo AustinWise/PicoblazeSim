@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -63,6 +62,7 @@ namespace Austin.PBConsoleFrontend
         {
             this.cpu.Reset();
             vgaDev.Clear();
+            lblInstructionsPerSec.Text = string.Format("{0:.###} MHz", cpu.InstructionsPerSecond / 1000000);
         }
 
         private void switches_ItemCheck(object sender, ItemCheckEventArgs e)

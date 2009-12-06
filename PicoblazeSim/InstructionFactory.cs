@@ -12,7 +12,7 @@ namespace Austin.PicoblazeSim
     internal class InstructionFactory
     {
         private List<OperationInfo> operations = new List<OperationInfo>();
-        private Dictionary<byte, Operation> opCodeToOps = new Dictionary<byte, Operation>();
+        private Operation[] opCodeToOps;
         private Dictionary<string, List<OperationInfo>> opNameToOpInfo = new Dictionary<string, List<OperationInfo>>();
         private List<string> shifterNames = new List<string>(Enum.GetNames(typeof(ShifterOps)));
         private List<string> specialOps = new List<string>(new string[] { "ENABLE", "DISABLE", "RETURNI" });
@@ -29,9 +29,11 @@ namespace Austin.PicoblazeSim
 
             add("BREAKPOINT", 0xFF, new ZeroParameterOperation((state) => System.Diagnostics.Debugger.Break()));
 
+            opCodeToOps = new Operation[0x100];
+
             foreach (var op in operations)
             {
-                opCodeToOps.Add(op.OpCode, op.Op);
+                opCodeToOps[op.OpCode] = op.Op;
                 if (!opNameToOpInfo.ContainsKey(op.Name))
                     opNameToOpInfo.Add(op.Name, new List<OperationInfo>());
                 opNameToOpInfo[op.Name].Add(op);

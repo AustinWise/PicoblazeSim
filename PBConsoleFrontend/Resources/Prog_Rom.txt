@@ -111,7 +111,7 @@ main:
             load s1, s0
             add s0, 01
             store s0, MEM_BLINK_COUNT3
-            sub s1, 02
+            sub s1, 05
             jump NZ, main_end
 
             ;reset counter
