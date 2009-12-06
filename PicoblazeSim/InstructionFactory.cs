@@ -59,6 +59,7 @@ namespace Austin.PicoblazeSim
         {
             return opNameToOpInfo[name];
         }
+        
 
         #region Interrupt
         // hack for the compiler since "enable interrupt" and "disable interrupt" don't really fit in.

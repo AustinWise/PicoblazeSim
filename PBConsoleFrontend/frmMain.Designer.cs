@@ -33,6 +33,7 @@
             this.btnReset = new System.Windows.Forms.Button();
             this.txtSrc = new System.Windows.Forms.TextBox();
             this.lblInstructionsPerSec = new System.Windows.Forms.Label();
+            this.chkUseFrameBuffer = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // switches
@@ -96,11 +97,23 @@
             this.lblInstructionsPerSec.TabIndex = 3;
             this.lblInstructionsPerSec.Text = "{0}";
             // 
+            // chkUseFrameBuffer
+            // 
+            this.chkUseFrameBuffer.AutoSize = true;
+            this.chkUseFrameBuffer.Location = new System.Drawing.Point(15, 254);
+            this.chkUseFrameBuffer.Name = "chkUseFrameBuffer";
+            this.chkUseFrameBuffer.Size = new System.Drawing.Size(104, 17);
+            this.chkUseFrameBuffer.TabIndex = 4;
+            this.chkUseFrameBuffer.Text = "Use frame buffer";
+            this.chkUseFrameBuffer.UseVisualStyleBackColor = true;
+            this.chkUseFrameBuffer.CheckedChanged += new System.EventHandler(this.chkUseFrameBuffer_CheckedChanged);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(637, 420);
+            this.Controls.Add(this.chkUseFrameBuffer);
             this.Controls.Add(this.lblInstructionsPerSec);
             this.Controls.Add(this.txtSrc);
             this.Controls.Add(this.btnReset);
@@ -120,5 +133,6 @@
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.TextBox txtSrc;
         private System.Windows.Forms.Label lblInstructionsPerSec;
+        private System.Windows.Forms.CheckBox chkUseFrameBuffer;
     }
 }

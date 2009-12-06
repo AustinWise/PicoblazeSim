@@ -99,8 +99,8 @@ namespace Austin.PBConsoleFrontend.Properties {
         ///D9,46
         ///OemMinus,4E
         ///Subtract,4E
-        ///Backspace,66
-        ///Spacebar,29
+        ///Back,66
+        ///Space,29
         ///Tab,0D
         ///Enter,5A
         ///Escape,76
@@ -116,12 +116,10 @@ namespace Austin.PBConsoleFrontend.Properties {
         ///F10,9
         ///F11,78
         ///F12,7
-        ///UpArrow,75
-        ///LeftArrow,6B
-        ///DownArrow,72
-        ///RightArrow,74
-        ///OemComma,41
-        ///OemPeriod,49.
+        ///Up,75
+        ///Left,6B
+        ///Down,72
+        ///Right,74.
         /// </summary>
         internal static string KeysToScan {
             get {
@@ -130,7 +128,15 @@ namespace Austin.PBConsoleFrontend.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to ; --------------------------------------------------------------------
+        ///; - Generic PicoBlaze/Nexys Starter File for Mediatronix PicoBlaze
+        ///; - and KCPSM3 assembler. See the notes listed below. 
+        ///; --------------------------------------------------------------------
+        ///; --------------------------------------------------------------------
+        ///; - Assembler Directives
+        ///; --------------------------------------------------------------------
+        ///; These are for the KCPSM3 assembler I/O port addressing
+        ///; COMMENT these  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Prog_Rom {
             get {

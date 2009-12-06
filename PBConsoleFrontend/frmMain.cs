@@ -26,6 +26,7 @@ namespace Austin.PBConsoleFrontend
             vgaDev = new frmVga();
             vgaDev.Show();
             switchDev = new SwitchesDevice();
+            chkUseFrameBuffer.Checked = vgaDev.UseFrameBuffer;
 
             this.txtSrc.Text = Properties.Resources.Prog_Rom;
         }
@@ -47,6 +48,9 @@ namespace Austin.PBConsoleFrontend
                 return;
             }
 
+            btnStart.Enabled = false;
+            chkUseFrameBuffer.Enabled = false;
+
             cpu = new Cpu(iMem);
 
             cpu.RegisterHardwareDevice(switchDev);
@@ -60,6 +64,8 @@ namespace Austin.PBConsoleFrontend
 
         private void btnReset_Click(object sender, EventArgs e)
         {
+            this.btnStart.Enabled = true;
+            this.chkUseFrameBuffer.Enabled = true;
             this.cpu.Reset();
             vgaDev.Clear();
             lblInstructionsPerSec.Text = string.Format("{0:.###} MHz", cpu.InstructionsPerSecond / 1000000);
@@ -76,6 +82,11 @@ namespace Austin.PBConsoleFrontend
                 res |= (byte)(isChecked ? 0x1 << value : 0x0);
             }
             switchDev.Value = res;
+        }
+
+        private void chkUseFrameBuffer_CheckedChanged(object sender, EventArgs e)
+        {
+            vgaDev.UseFrameBuffer = chkUseFrameBuffer.Checked;
         }
     }
 }
