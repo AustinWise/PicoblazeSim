@@ -36,6 +36,7 @@
             this.chkUseFrameBuffer = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtSleepAfter = new System.Windows.Forms.NumericUpDown();
+            this.leds = new Austin.PBConsoleFrontend.LEDs();
             ((System.ComponentModel.ISupportInitialize)(this.txtSleepAfter)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,7 +60,7 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(12, 157);
+            this.btnStart.Location = new System.Drawing.Point(12, 220);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
             this.btnStart.TabIndex = 1;
@@ -69,7 +70,7 @@
             // 
             // btnReset
             // 
-            this.btnReset.Location = new System.Drawing.Point(12, 186);
+            this.btnReset.Location = new System.Drawing.Point(12, 249);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
             this.btnReset.TabIndex = 1;
@@ -83,18 +84,18 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSrc.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtSrc.Location = new System.Drawing.Point(138, 12);
+            this.txtSrc.Location = new System.Drawing.Point(199, 12);
             this.txtSrc.Multiline = true;
             this.txtSrc.Name = "txtSrc";
             this.txtSrc.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtSrc.Size = new System.Drawing.Size(487, 396);
+            this.txtSrc.Size = new System.Drawing.Size(426, 396);
             this.txtSrc.TabIndex = 2;
             this.txtSrc.WordWrap = false;
             // 
             // lblInstructionsPerSec
             // 
             this.lblInstructionsPerSec.AutoSize = true;
-            this.lblInstructionsPerSec.Location = new System.Drawing.Point(12, 226);
+            this.lblInstructionsPerSec.Location = new System.Drawing.Point(12, 289);
             this.lblInstructionsPerSec.Name = "lblInstructionsPerSec";
             this.lblInstructionsPerSec.Size = new System.Drawing.Size(21, 13);
             this.lblInstructionsPerSec.TabIndex = 3;
@@ -103,7 +104,7 @@
             // chkUseFrameBuffer
             // 
             this.chkUseFrameBuffer.AutoSize = true;
-            this.chkUseFrameBuffer.Location = new System.Drawing.Point(15, 254);
+            this.chkUseFrameBuffer.Location = new System.Drawing.Point(12, 197);
             this.chkUseFrameBuffer.Name = "chkUseFrameBuffer";
             this.chkUseFrameBuffer.Size = new System.Drawing.Size(104, 17);
             this.chkUseFrameBuffer.TabIndex = 4;
@@ -114,7 +115,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 289);
+            this.label1.Location = new System.Drawing.Point(15, 315);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(86, 13);
             this.label1.TabIndex = 5;
@@ -127,7 +128,7 @@
             0,
             0,
             0});
-            this.txtSleepAfter.Location = new System.Drawing.Point(12, 305);
+            this.txtSleepAfter.Location = new System.Drawing.Point(15, 331);
             this.txtSleepAfter.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -137,11 +138,20 @@
             this.txtSleepAfter.Size = new System.Drawing.Size(86, 20);
             this.txtSleepAfter.TabIndex = 6;
             // 
+            // leds
+            // 
+            this.leds.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.leds.Location = new System.Drawing.Point(12, 157);
+            this.leds.Name = "leds";
+            this.leds.Size = new System.Drawing.Size(169, 34);
+            this.leds.TabIndex = 7;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(637, 420);
+            this.Controls.Add(this.leds);
             this.Controls.Add(this.txtSleepAfter);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.chkUseFrameBuffer);
@@ -168,5 +178,6 @@
         private System.Windows.Forms.CheckBox chkUseFrameBuffer;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown txtSleepAfter;
+        private LEDs leds;
     }
 }

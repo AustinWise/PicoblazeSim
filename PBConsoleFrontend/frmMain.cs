@@ -59,7 +59,7 @@ namespace Austin.PBConsoleFrontend
             cpu.RegisterHardwareDevice(vgaDev);
             cpu.RegisterHardwareDevice(new SevenSegmentDevice());
             cpu.RegisterHardwareDevice(new ButtonsDevice());
-            cpu.RegisterHardwareDevice(new LedDevice());
+            cpu.RegisterHardwareDevice(leds);
 
             this.cpu.Start();
         }
