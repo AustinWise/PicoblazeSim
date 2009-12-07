@@ -55,7 +55,6 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="KeyboardDevice.cs" />
     <Compile Include="LEDs.cs">
       <SubType>UserControl</SubType>
     </Compile>

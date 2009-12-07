@@ -67,9 +67,9 @@ namespace Austin.PBConsoleFrontend
         {
             this.btnStart.Enabled = true;
             this.chkUseFrameBuffer.Enabled = true;
-            this.cpu.Reset();
+            double instructionsPerSecond = this.cpu.Reset();
             vgaDev.Clear();
-            lblInstructionsPerSec.Text = string.Format("{0:.###} MHz", cpu.InstructionsPerSecond / 1000000);
+            lblInstructionsPerSec.Text = string.Format("{0:.###} MHz", instructionsPerSecond / 1000000);
         }
 
         private void switches_ItemCheck(object sender, ItemCheckEventArgs e)

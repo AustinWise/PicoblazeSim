@@ -131,7 +131,8 @@ namespace Austin.PicoblazeSim
         /// <summary>
         /// Stops and resets the processor.  
         /// </summary>
-        public void Reset()
+        /// <returns>The the instructions per second executed.</returns>
+        public double Reset()
         {
             this.isRunning = false;
             runThread.Join();
@@ -140,14 +141,7 @@ namespace Austin.PicoblazeSim
             {
                 hookupDevice(dev);
             }
-        }
-
-        public double InstructionsPerSecond
-        {
-            get
-            {
-                return tickCount / (endTime.Subtract(startTime).TotalSeconds);
-            }
+            return tickCount / (endTime.Subtract(startTime).TotalSeconds);
         }
 
         public bool IsRunning
