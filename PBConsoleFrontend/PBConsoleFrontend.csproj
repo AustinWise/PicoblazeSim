@@ -10,9 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Austin.PBConsoleFrontend</RootNamespace>
     <AssemblyName>PBConsoleFrontend</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkSubset>Client</TargetFrameworkSubset>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
     <StartupObject>
     </StartupObject>
   </PropertyGroup>
@@ -35,9 +36,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -58,7 +56,6 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="KeyboardDevice.cs" />
-    <Compile Include="LedDevice.cs" />
     <Compile Include="LEDs.cs">
       <SubType>UserControl</SubType>
     </Compile>

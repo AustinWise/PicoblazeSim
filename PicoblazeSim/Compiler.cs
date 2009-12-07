@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using Austin.PicoblazeSim;
@@ -13,7 +12,7 @@ namespace Austin.PicoblazeSim
     /// </summary>
     public class Compiler
     {
-        private readonly string[] AddressOps = new string[] { "CALL", "JUMP" };
+        private readonly List<string> AddressOps = new List<string>(new string[] { "CALL", "JUMP" });
 
         private InstructionFactory ops = new InstructionFactory();
 
