@@ -34,6 +34,9 @@
             this.txtSrc = new System.Windows.Forms.TextBox();
             this.lblInstructionsPerSec = new System.Windows.Forms.Label();
             this.chkUseFrameBuffer = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtSleepAfter = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSleepAfter)).BeginInit();
             this.SuspendLayout();
             // 
             // switches
@@ -108,11 +111,39 @@
             this.chkUseFrameBuffer.UseVisualStyleBackColor = true;
             this.chkUseFrameBuffer.CheckedChanged += new System.EventHandler(this.chkUseFrameBuffer_CheckedChanged);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 289);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(86, 13);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Sleep after ticks:";
+            // 
+            // txtSleepAfter
+            // 
+            this.txtSleepAfter.Increment = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.txtSleepAfter.Location = new System.Drawing.Point(12, 305);
+            this.txtSleepAfter.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.txtSleepAfter.Name = "txtSleepAfter";
+            this.txtSleepAfter.Size = new System.Drawing.Size(86, 20);
+            this.txtSleepAfter.TabIndex = 6;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(637, 420);
+            this.Controls.Add(this.txtSleepAfter);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.chkUseFrameBuffer);
             this.Controls.Add(this.lblInstructionsPerSec);
             this.Controls.Add(this.txtSrc);
@@ -121,6 +152,7 @@
             this.Controls.Add(this.switches);
             this.Name = "frmMain";
             this.Text = "PicoBlaze on Nexys2 Simulator";
+            ((System.ComponentModel.ISupportInitialize)(this.txtSleepAfter)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -134,5 +166,7 @@
         private System.Windows.Forms.TextBox txtSrc;
         private System.Windows.Forms.Label lblInstructionsPerSec;
         private System.Windows.Forms.CheckBox chkUseFrameBuffer;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown txtSleepAfter;
     }
 }

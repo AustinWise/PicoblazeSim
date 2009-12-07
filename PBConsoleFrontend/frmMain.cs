@@ -29,6 +29,7 @@ namespace Austin.PBConsoleFrontend
             chkUseFrameBuffer.Checked = vgaDev.UseFrameBuffer;
 
             this.txtSrc.Text = Properties.Resources.Prog_Rom;
+            txtSleepAfter.Value = Cpu.DefaultSleepTickInterval;
         }
 
         private static void doNothing(byte data)
@@ -52,6 +53,7 @@ namespace Austin.PBConsoleFrontend
             chkUseFrameBuffer.Enabled = false;
 
             cpu = new Cpu(iMem);
+            cpu.SleepTickInterval = (int)txtSleepAfter.Value;
 
             cpu.RegisterHardwareDevice(switchDev);
             cpu.RegisterHardwareDevice(vgaDev);

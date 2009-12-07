@@ -21,7 +21,7 @@ namespace Austin.PBConsoleFrontend
 
         private byte[] frameBuffer = new byte[0x1000];
 
-        private bool useFrameBuffer = true;
+        private bool useFrameBuffer = false;
         public bool UseFrameBuffer
         {
             get

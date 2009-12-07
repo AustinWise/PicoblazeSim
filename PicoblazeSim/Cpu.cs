@@ -25,9 +25,9 @@ namespace Austin.PicoblazeSim
                     instructionMemory[i] = iMem[i];
             }
             this.state = new CpuState();
+            this.SleepTickInterval = DefaultSleepTickInterval;
         }
 
-        private object exeSync = new object();
         private uint[] instructionMemory;
         private InstructionFactory ops = new InstructionFactory();
         private bool isRunning = false;
@@ -35,20 +35,18 @@ namespace Austin.PicoblazeSim
         private CpuState state;
         private bool interruptFlag = false;
         private Thread runThread;
-
+        
+        private int stallCounter = 0;
         private long tickCount;
         private DateTime startTime;
         private DateTime endTime;
 
         public void RegisterHardwareDevice(IHardwareDevice dev)
         {
-            lock (exeSync)
-            {
-                devices.Add(dev);
-                hookupDevice(dev);
-                if (dev is IInterruptor)
-                    ((IInterruptor)dev).Interrupt += new EventHandler(dev_Interrupt);
-            }
+            devices.Add(dev);
+            hookupDevice(dev);
+            if (dev is IInterruptor)
+                ((IInterruptor)dev).Interrupt += new EventHandler(dev_Interrupt);
         }
 
         void dev_Interrupt(object sender, EventArgs e)
@@ -93,6 +91,7 @@ namespace Austin.PicoblazeSim
             this.endTime = DateTime.Now;
         }
 
+
         /// <summary>
         /// Executes one instruction.
         /// </summary>
@@ -109,7 +108,16 @@ namespace Austin.PicoblazeSim
             byte opCode = (byte)(instruction >> 12);
             ushort args = (ushort)(0XFFF & instruction);
             ops.Get(opCode).Do(state, args);
+
             tickCount++;
+
+            // stall the processor to reach a target execution rate
+            stallCounter++;
+            if (stallCounter == sleepTickInterval)
+            {
+                Thread.Sleep(1);
+                stallCounter = 0;
+            }
         }
 
         /// <summary>
@@ -148,6 +156,25 @@ namespace Austin.PicoblazeSim
             get
             {
                 return this.isRunning;
+            }
+        }
+
+        public const int DefaultSleepTickInterval = 25000;
+
+        private int sleepTickInterval;
+        /// <summary>
+        /// Sleep the execution thread for 1 millisecond
+        /// after this many instructions have been executed.
+        /// </summary>
+        public int SleepTickInterval
+        {
+            get
+            {
+                return sleepTickInterval;
+            }
+            set
+            {
+                this.sleepTickInterval = value;
             }
         }
     }
