@@ -26,7 +26,7 @@ namespace Austin.PicoblazeSim
             createCompareAndTestOps();
             createInterruptOps();
 
-            add("BREAKPOINT", 0xFF, new ZeroParameterOperation((state) => System.Diagnostics.Debugger.Break()));
+            add("BREAKPOINT", 0x3F, new ZeroParameterOperation((state) => System.Diagnostics.Debugger.Break()));
 
             opCodeToOps = new Operation[0x100];
 
