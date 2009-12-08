@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicoblazeSim", "PicoblazeSi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PBConsoleFrontend", "PBConsoleFrontend\PBConsoleFrontend.csproj", "{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicoCompile", "PicoCompile\PicoCompile.csproj", "{3C80CF2A-1146-4C89-B26F-21A9C49AF12C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C80CF2A-1146-4C89-B26F-21A9C49AF12C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C80CF2A-1146-4C89-B26F-21A9C49AF12C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C80CF2A-1146-4C89-B26F-21A9C49AF12C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C80CF2A-1146-4C89-B26F-21A9C49AF12C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
