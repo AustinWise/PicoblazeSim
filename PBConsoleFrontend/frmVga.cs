@@ -13,6 +13,8 @@ namespace Austin.PBConsoleFrontend
         private Dictionary<Keys, byte> consoleKeyToScanCodes = new Dictionary<Keys, byte>();
         private Keys lastKeyPressed;
 
+        public event EventHandler Interrupt;
+
         private const int pixleSize = 20;
 
         private byte FB_LADD = 0;
@@ -110,8 +112,11 @@ namespace Austin.PBConsoleFrontend
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            this.lastKeyPressed = e.KeyCode;
-            this.Interrupt(this, EventArgs.Empty);
+            if (this.Interrupt != null)
+            {
+                this.lastKeyPressed = e.KeyCode;
+                this.Interrupt(this, EventArgs.Empty);
+            }
             base.OnKeyDown(e);
         }
 
@@ -168,8 +173,6 @@ namespace Austin.PBConsoleFrontend
                 this.BeginInvoke(new Action<int, int, byte>(WritePixel), x, y, data);
             }
         }
-
-        public event EventHandler Interrupt;
 
         private void loadKeys()
         {

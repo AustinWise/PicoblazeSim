@@ -61,6 +61,23 @@ namespace Austin.PBConsoleFrontend.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ; --------------------------------------------------------------------
+        ///; - Generic PicoBlaze/Nexys Starter File for Mediatronix PicoBlaze
+        ///; - and KCPSM3 assembler. See the notes listed below. 
+        ///; --------------------------------------------------------------------
+        ///; --------------------------------------------------------------------
+        ///; - Assembler Directives
+        ///; --------------------------------------------------------------------
+        ///; These are for the KCPSM3 assembler I/O port addressing
+        ///; COMMENT these  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Austin_Prog_ROM {
+            get {
+                return ResourceManager.GetString("Austin_Prog_ROM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A,1C
         ///B,32
         ///C,21

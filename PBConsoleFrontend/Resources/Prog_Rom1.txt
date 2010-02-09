@@ -1,0 +1,639 @@
+; --------------------------------------------------------------------
+; - Portions Copyright 2009 Austin Wise
+; - AustinWise@gmail.com
+; --------------------------------------------------------------------
+
+; --------------------------------------------------------------------
+; - Generic PicoBlaze/Nexys Starter File for Mediatronix PicoBlaze
+; - and KCPSM3 assembler. See the notes listed below. 
+; --------------------------------------------------------------------
+; --------------------------------------------------------------------
+; - Assembler Directives
+; --------------------------------------------------------------------
+; These are for the KCPSM3 assembler I/O port addressing
+; COMMENT these lines after "importing" to Mediatronix IDE; 
+; Leave them here if you use the KCPSM assembler. 
+; ---------------------------------------------------------------
+CONSTANT    SWITCHES,  24        ; in: switches address = port 24 (input)
+CONSTANT    BUTTONS,   20        ; in: button address: = port 20
+CONSTANT    KEYBOARD,  28        ; in: keyboard
+                                 ; VGA driver outputs
+CONSTANT    FB_LADD,   0A        ; out: lower 8b address to FB
+CONSTANT    FB_HADD,   0B        ; out: upper 3b address to FB
+CONSTANT    FB_COLOR,  0D        ; out: color vector out to FB
+
+CONSTANT    SSEG_DISP, 08        ; out: seven-segment display address = port 08
+CONSTANT    SSEG_EN,   04        ; out: display enable address = port 04
+CONSTANT    LEDS,      0C        ; out: LED address = port 0C 
+; --------------------------------------------------------------------
+
+CONSTANT KEY_RELEASED,  f0
+CONSTANT KEY_LEFT,      6b
+CONSTANT KEY_RIGHT,     74
+CONSTANT KEY_UP,        75
+CONSTANT KEY_DOWN,      72
+
+CONSTANT BOUNDS_Y, 1E
+CONSTANT BOUNDS_X, 28
+
+CONSTANT PADDLE_WIDTH, 03
+
+CONSTANT COLOR_GREEN, 1C
+CONSTANT COLOR_RED,   E0
+CONSTANT COLOR_BLUE,  03
+
+;memory locations
+CONSTANT MEM_ISR_BACKUP0,      10
+CONSTANT MEM_ISR_BACKUP1,      11
+CONSTANT MEM_ISR_BACKUP2,      12
+CONSTANT MEM_ISR_BACKUP3,      13
+CONSTANT MEM_ISR_BACKUP4,      14
+CONSTANT MEM_ISR_BACKUP5,      15
+CONSTANT MEM_ISR_BACKUP6,      16
+CONSTANT MEM_ISR_BACKUP7,      17
+CONSTANT MEM_ISR_BACKUP8,      18
+CONSTANT MEM_ISR_BACKUP9,      19
+CONSTANT MEM_ISR_BACKUPA,      1A
+CONSTANT MEM_ISR_BACKUPB,      1B
+CONSTANT MEM_ISR_BACKUPC,      1C
+CONSTANT MEM_ISR_BACKUPD,      1D
+CONSTANT MEM_ISR_BACKUPE,      1E
+CONSTANT MEM_ISR_BACKUPF,      1F
+
+CONSTANT MEM_BLINK_COUNT1, 00
+CONSTANT MEM_BLINK_COUNT2, 01
+CONSTANT MEM_BLINK_COUNT3, 02
+
+CONSTANT MEM_COLOR, 03
+
+CONSTANT MEM_XPADDLE, 20
+CONSTANT MEM_YPADDLE, 21
+CONSTANT MEM_IGNORE_KEY, 22
+
+CONSTANT MEM_BALL_X, 23
+CONSTANT MEM_BALL_Y, 24
+CONSTANT MEM_BALL_VEL_X, 25
+CONSTANT MEM_BALL_VEL_Y, 26
+
+
+address 000
+			  enable interrupt
+			  
+			  ;clear Seven seg disp
+			  LOAD s0, FF
+			  OUTPUT s0, SSEG_EN
+
+        ;clear meory
+			  LOAD s0, 00
+			  STORE s0, MEM_BLINK_COUNT1
+			  STORE s0, MEM_BLINK_COUNT2
+			  STORE s0, MEM_BLINK_COUNT3
+			  STORE s0, MEM_IGNORE_KEY
+			  
+			  LOAD s0, COLOR_GREEN
+			  STORE s0, MEM_COLOR
+
+			  CALL reset_game
+			  
+			  
+main:  
+            ;count up to devide the clock
+            fetch s0, MEM_BLINK_COUNT1
+            load s1, s0
+            add s0, 01
+            store s0, MEM_BLINK_COUNT1
+            sub s1, FF
+            jump NZ, main_end
+
+            fetch s0, MEM_BLINK_COUNT2
+            load s1, s0
+            add s0, 01
+            store s0, MEM_BLINK_COUNT2
+            sub s1, FF
+            jump NZ, main_end
+
+            fetch s0, MEM_BLINK_COUNT3
+            load s1, s0
+            add s0, 01
+            store s0, MEM_BLINK_COUNT3
+            sub s1, 05
+            jump NZ, main_end
+
+            ;reset counter
+            LOAD s0, 00
+            STORE s0, MEM_BLINK_COUNT3
+
+            ;slow loop beyond this point
+
+            ;get ball location
+            fetch s4, MEM_BALL_Y
+            fetch s5, MEM_BALL_X
+            
+            ;clear old ball
+            load s6, 00
+            call draw_dot
+            
+            ;advance the ball location
+            fetch s0, MEM_BALL_VEL_Y
+            add s4, s0
+            fetch s0, MEM_BALL_VEL_X
+            add s5, s0
+            store s4, MEM_BALL_Y
+            store s5, MEM_BALL_X
+
+            ;if the ball is at the edge, fail game
+            COMPARE s5, 00
+            JUMP Z, main_reset_game
+            COMPARE s5, BOUNDS_X
+            JUMP Z, main_reset_game
+            COMPARE s4, 00
+            JUMP Z, main_reset_game
+            COMPARE s4, BOUNDS_Y
+            JUMP Z, main_reset_game
+            jump main_continue_game
+main_reset_game:
+            call reset_game
+            load s6, COLOR_RED
+            call draw_border
+            jump main_end
+
+main_continue_game:
+
+            call bounce_ball
+
+            ;get color for border
+            INPUT s0, SWITCHES
+            and s0, 01
+            jump z, black_border
+
+            ;draw border
+            fetch s6, MEM_COLOR
+            call draw_border
+
+            ;flip color for paddles
+            xor s6, FF
+            store s6, MEM_COLOR
+
+            jump main_draw_paddles
+black_border:
+           ;draw borders black and paddles whhite
+           load s6, 00
+           call draw_border
+           load s6, FF
+
+main_draw_paddles:
+          load s7, PADDLE_WIDTH
+          
+          ;draw x paddle
+          call get_top_paddle_index
+          load s5, s0
+          load s4, 00
+          call draw_hline
+          call get_bottom_paddle_index
+          load s5, s0
+          load s4, 1d
+          call draw_hline
+
+          ;draw y paddle
+          call get_left_paddle_index
+          load s4, s0
+          load s5, 00
+          call draw_vline
+          call get_right_paddle_index
+          load s4, s0
+          load s5, 27
+          call draw_vline
+          
+          ;draw ball
+          fetch s4, MEM_BALL_Y
+          fetch s5, MEM_BALL_X
+          load s6, FF
+          call draw_dot
+           
+
+main_end:  
+
+           jump main
+
+
+; --------------------------------------------------------------------
+; function bounce_ball - bounces the ball off the paddle
+; --------------------------------------------------------------------
+; returns: nothing 
+; uses:   s0, s1, s4, s5, s6, s7 sA, sB
+; --------------------------------------------------------------------
+bounce_ball:
+            fetch s4, MEM_BALL_Y
+            fetch s5, MEM_BALL_X
+            fetch s6, MEM_BALL_VEL_Y
+            fetch s7, MEM_BALL_VEL_X
+            ;bonce ball off paddles
+    ball_lower_bound_x:
+            COMPARE s5, 01
+            JUMP NZ, ball_upper_bound_x
+                ;try to bounce off left of screen
+                call get_left_paddle_index
+                load sA, s4
+                load sB, s7
+                call bounce_ball_impel
+                load s7, sB
+    ball_upper_bound_x:
+            load s3, BOUNDS_X
+            sub s3, 02
+            COMPARE s5, s3
+            JUMP NZ, ball_lower_bound_y
+                ;try to bounce off right of screen
+                call get_right_paddle_index
+                load sA, s4
+                load sB, s7
+                call bounce_ball_impel
+                load s7, sB
+    ball_lower_bound_y:
+            COMPARE s4, 01
+            JUMP NZ, ball_upper_bound_y
+                ;try to bounce off top of screen
+                call get_top_paddle_index
+                load sA, s5
+                load sB, s6
+                call bounce_ball_impel
+                load s6, sB
+    ball_upper_bound_y:
+            load s3, BOUNDS_Y
+            sub s3, 02
+            COMPARE s4, s3
+            JUMP NZ, ball_bound_done
+                ;try to bounce off bottom of screen
+                call get_bottom_paddle_index
+                load sA, s5
+                load sB, s6
+                call bounce_ball_impel
+                load s6, sB
+    ball_bound_done:
+            store s6, MEM_BALL_VEL_Y
+            store s7, MEM_BALL_VEL_X
+            return
+
+
+; --------------------------------------------------------------------
+; function bounce_ball_impel - checks a ball to a paddle
+; --------------------------------------------------------------------
+;         s0 = paddle_index (along some axis A)
+;         sA = ball index (along some axis A)
+;         sB = ball speed (along some axis B, orthoganal to A)
+; returns: sB may be flipped 
+; uses:   s1
+; --------------------------------------------------------------------
+bounce_ball_impel:
+        load s1, s0
+        add s1, PADDLE_WIDTH
+bounce_ball_impel_check_loop:
+        compare s0, sA
+        JUMP Z, bounce_ball_impel_do_flip
+        add s0, 01
+        compare s0, s1
+        JUMP Z, bounce_ball_impel_exit
+        JUMP bounce_ball_impel_check_loop
+bounce_ball_impel_do_flip:
+        compare sB, 01
+        JUMP NZ, bounce_ball_impel_do_flip_is_neg
+        sub sB, 02
+        jump bounce_ball_impel_exit
+bounce_ball_impel_do_flip_is_neg:
+        add sB, 02
+bounce_ball_impel_exit:
+        return
+
+
+; --------------------------------------------------------------------
+; function get_top_paddle_index - 
+; --------------------------------------------------------------------
+; returns: s0 = index of top paddle
+; --------------------------------------------------------------------
+get_top_paddle_index:
+            fetch s0, MEM_XPADDLE
+            return
+
+; --------------------------------------------------------------------
+; function get_bottom_paddle_index - 
+; --------------------------------------------------------------------
+; returns: s0 = index of bottom paddle
+; uses:    s1
+; --------------------------------------------------------------------
+get_bottom_paddle_index:
+            input s0, SWITCHES
+            and s0, 02
+            jump Z, get_bottom_paddle_index_no_flip
+            LOAD s0, BOUNDS_X
+            fetch s1, MEM_XPADDLE
+            sub s0, s1
+            return
+get_bottom_paddle_index_no_flip:
+            fetch s0, MEM_XPADDLE
+            return
+
+; --------------------------------------------------------------------
+; function get_left_paddle_index - 
+; --------------------------------------------------------------------
+; returns: s0 = index of left paddle
+; --------------------------------------------------------------------
+get_left_paddle_index:
+            fetch s0, MEM_YPADDLE
+            return
+
+; --------------------------------------------------------------------
+; function get_right_paddle_index - 
+; --------------------------------------------------------------------
+; returns: s0 = index of right paddle
+; --------------------------------------------------------------------
+get_right_paddle_index:
+            input s0, SWITCHES
+            and s0, 02
+            jump Z, get_right_paddle_index_no_flip
+            LOAD s0, BOUNDS_Y
+            fetch s1, MEM_YPADDLE
+            sub s0, s1
+            return
+get_right_paddle_index_no_flip:
+            fetch s0, MEM_YPADDLE
+            return
+
+; --------------------------------------------------------------------
+; function reset_game - resets the game state
+; --------------------------------------------------------------------
+; returns: nothing 
+; uses:   s0
+; --------------------------------------------------------------------
+reset_game:
+			  LOAD s0, 10
+			  STORE s0, MEM_XPADDLE
+			  STORE s0, MEM_YPADDLE
+			  STORE s0, MEM_BALL_X
+			  STORE s0, MEM_BALL_Y
+			  LOAD s0, 01
+			  STORE s0, MEM_BALL_VEL_X
+			  STORE s0, MEM_BALL_VEL_Y
+			  RETURN
+
+; --------------------------------------------------------------------
+; function draw_border - draws a border
+; --------------------------------------------------------------------
+;         s6 = rgb color vector R2:0|G2:0|B1:0    
+; returns: nothing 
+; uses:   s4, s5, s7, sA, sB, sD, sE
+; --------------------------------------------------------------------
+draw_border:           
+           ;draw h top
+           LOAD s4, 00
+           LOAD s5, 00
+           LOAD s7, BOUNDS_X
+           CALL draw_hline
+           LOAD s7, BOUNDS_Y
+           CALL draw_vline ;v left
+           
+           load s5, 27
+           CALL draw_vline ;v right
+           load s4, 1D
+           load s5, 00
+           load s7, 28
+           call draw_hline ;h bottom
+           
+           RETURN
+			  
+isr:
+        ;backup registers
+        STORE s0, MEM_ISR_BACKUP0
+        STORE s1, MEM_ISR_BACKUP1
+        STORE s2, MEM_ISR_BACKUP2
+        STORE s3, MEM_ISR_BACKUP3
+        STORE s4, MEM_ISR_BACKUP4
+        STORE s5, MEM_ISR_BACKUP5
+        STORE s6, MEM_ISR_BACKUP6
+        STORE s7, MEM_ISR_BACKUP7
+        STORE s8, MEM_ISR_BACKUP8
+        STORE s9, MEM_ISR_BACKUP9
+        STORE sA, MEM_ISR_BACKUPA
+        STORE sB, MEM_ISR_BACKUPB
+        STORE sC, MEM_ISR_BACKUPC
+        STORE sD, MEM_ISR_BACKUPD
+        STORE sE, MEM_ISR_BACKUPE
+        STORE sF, MEM_ISR_BACKUPF
+        
+        LOAD s0, 00
+        LOAD s1, 00
+        LOAD s2, 00
+        LOAD s3, 00
+        LOAD s4, 00
+        LOAD s5, 00
+        LOAD s6, 00
+        LOAD s7, 00
+        LOAD s8, 00
+        LOAD s9, 00
+        LOAD sA, 00
+        LOAD sB, 00
+        LOAD sC, 00
+        LOAD sD, 00
+        LOAD sE, 00
+        LOAD sF, 00
+        
+        
+        INPUT s0, KEYBOARD
+        FETCH s1, MEM_XPADDLE
+        FETCH s2, MEM_YPADDLE
+        FETCH s3, MEM_IGNORE_KEY
+        
+        ;see if the ignore key bit is set
+        COMPARE s3, ff
+        JUMP NZ, isr_ignore_key
+        
+        ;clear the ignore key bit
+        load s3, 00
+        jump end_isr
+        
+isr_ignore_key:
+        COMPARE s0, KEY_RELEASED
+        JUMP NZ, isr_try_left
+        
+        ;set ignore bit
+        load s3, ff
+        jump end_isr
+        
+isr_try_left:
+        COMPARE s0, KEY_LEFT
+        JUMP NZ, isr_try_right
+        
+        ;move left        
+        SUB s1, 01        
+        jump end_isr
+        
+isr_try_right:
+        COMPARE s0, KEY_RIGHT
+        JUMP NZ, isr_try_up
+        
+        ;move right        
+        ADD s1, 01
+        jump end_isr
+        
+isr_try_up:
+        COMPARE s0, KEY_UP
+        JUMP NZ, isr_try_down
+        
+        ;move up        
+        SUB s2, 01
+        jump end_isr
+        
+isr_try_down:
+        COMPARE s0, KEY_DOWN
+        JUMP NZ, end_isr
+        
+        ;move up        
+        ADD s2, 01
+        jump end_isr
+        
+end_isr:
+
+        ;make sure the paddles don't go off the screen
+isr_lower_bound_x:
+        COMPARE s1, 00
+        JUMP NZ, isr_upper_bound_x
+        LOAD s1, 01
+isr_upper_bound_x:
+        LOAD sF, BOUNDS_X
+        SUB sF, PADDLE_WIDTH
+        COMPARE s1, sF
+        JUMP NZ, isr_lower_bound_y
+        SUB s1, 01
+isr_lower_bound_y:
+        COMPARE s2, 00
+        JUMP NZ, isr_upper_bound_y
+        LOAD s2, 01
+isr_upper_bound_y:
+        LOAD sF, BOUNDS_Y
+        SUB sF, PADDLE_WIDTH
+        COMPARE s2, sF
+        JUMP NZ, isr_bound_done
+        SUB s2, 01
+isr_bound_done:
+
+        STORE s1, MEM_XPADDLE
+        STORE s2, MEM_YPADDLE
+        STORE s3, MEM_IGNORE_KEY
+        
+        OUTPUT s0, LEDS
+
+        ;restore registers
+        FETCH s0, MEM_ISR_BACKUP0
+        FETCH s1, MEM_ISR_BACKUP1
+        FETCH s2, MEM_ISR_BACKUP2
+        FETCH s3, MEM_ISR_BACKUP3
+        FETCH s4, MEM_ISR_BACKUP4
+        FETCH s5, MEM_ISR_BACKUP5
+        FETCH s6, MEM_ISR_BACKUP6
+        FETCH s7, MEM_ISR_BACKUP7
+        FETCH s8, MEM_ISR_BACKUP8
+        FETCH s9, MEM_ISR_BACKUP9
+        FETCH sA, MEM_ISR_BACKUPA
+        FETCH sB, MEM_ISR_BACKUPB
+        FETCH sC, MEM_ISR_BACKUPC
+        FETCH sD, MEM_ISR_BACKUPD
+        FETCH sE, MEM_ISR_BACKUPE
+        FETCH sF, MEM_ISR_BACKUPF
+        
+			  returni enable
+
+
+
+
+; --------------------------------------------------------------------
+; function draw_dot - draws a 16x16 pixel block to the VGA framebuffer
+; --------------------------------------------------------------------
+; inputs: s4 = y coord, 1 <= y <= 30 
+;         s5 = x coord, 1 <= x <= 40
+;         s6 = rgb color vector R2:0|G2:0|B1:0    
+; returns: nothing 
+; uses:   sA, sB
+; the framebuffer is expecting a 11-bit address of the format row8:4| col9:4
+; All 6 bits of the col fits into sA, and the 2 lsbs or the row also fit in sA
+; The top 3 bits of the row are put in sB
+; --------------------------------------------------------------------
+            
+draw_dot:   load      sB, s4  ; sB = high byte
+            load      sA, s5  ; sA = low byte
+            and       sA, 3F  ; make sure top 2 bits cleared
+            and       sB, 1F  ; make sure top 3 bits cleared
+            sr0       sB
+            call      C, dd_add40
+            sr0       sB
+            call      C, dd_add80
+dd_out:     output    sA, FB_LADD ;
+            output    sB, FB_HADD ;
+            output    s6, FB_COLOR ;
+            return ;
+dd_add40:   or        sA, 40
+            return
+dd_add80:   or        sA, 80
+            return
+            
+; --------------------------------------------------------------------
+; function draw_hline - draws a hline w/ 16x16 pixel blocks to the VGA framebuffer
+; --------------------------------------------------------------------
+; inputs: s4 = y coord, 1 <= y <= 30 
+;         s5 = x coord, 1 <= x <= 40
+;         s6 = rgb color vector R2:0|G2:0|B1:0    
+;         s7 = length
+; returns: nothing 
+; uses:   sA, sB, sD, sE
+; --------------------------------------------------------------------
+draw_hline:     load   sD, s7
+                load   sE, s5
+hline_loop:     call   draw_dot  ;inputs: s4, s5, and s6
+                sub    sD, 01
+                jump   Z, exit_hline
+                add    s5, 01
+                jump   hline_loop
+exit_hline:     load   s5, sE
+                return
+
+; --------------------------------------------------------------------
+; function draw_vline - draws a hline w/ 16x16 pixel blocks to the VGA framebuffer
+; --------------------------------------------------------------------
+; inputs: s4 = y coord, 1 <= y <= 30 
+;         s5 = x coord, 1 <= x <= 40
+;         s6 = rgb color vector R2:0|G2:0|B1:0    
+;         s7 = length
+; returns: nothing 
+; uses:   sA, sB, sD, sE
+; --------------------------------------------------------------------
+draw_vline:     load   sD, s7
+                load   sE, s4
+vline_loop:     call   draw_dot  ;inputs: s4, s5, and s6
+                sub    sD, 01
+                jump   Z, exit_vline
+                add    s4, 01
+                jump   vline_loop
+exit_vline:     load   s4, sE
+                return
+
+; --------------------------------------------------------------------
+; function draw_box - draws a box w/ 16x16 pixel blocks to the VGA framebuffer
+; --------------------------------------------------------------------
+; inputs: s4 = y coord, 1 <= y <= 30 
+;         s5 = x coord, 1 <= x <= 40
+;         s6 = rgb color vector R2:0|G2:0|B1:0    
+;         s7 = width
+;         s8 = height
+; returns: nothing 
+; uses:   sA, sB, sD, sE, sF
+; --------------------------------------------------------------------   
+draw_box:       load      sF, s4
+box_loop:       call      draw_hline; inputs: s4, s5, s6 and s7
+                add       s4, 01
+                sub       s8, 01
+                jump      Z, exit_box
+                jump      box_loop
+exit_box:       load      s4, sF
+                return                
+
+
+address 3ff
+					jump isr
+

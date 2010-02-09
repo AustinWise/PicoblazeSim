@@ -70,6 +70,7 @@
             // 
             // btnReset
             // 
+            this.btnReset.Enabled = false;
             this.btnReset.Location = new System.Drawing.Point(12, 249);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
@@ -162,6 +163,7 @@
             this.Controls.Add(this.switches);
             this.Name = "frmMain";
             this.Text = "PicoBlaze on Nexys2 Simulator";
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmMain_MouseMove);
             ((System.ComponentModel.ISupportInitialize)(this.txtSleepAfter)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

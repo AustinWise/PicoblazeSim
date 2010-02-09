@@ -49,6 +49,7 @@ namespace Austin.PBConsoleFrontend
             }
 
             btnStart.Enabled = false;
+            btnReset.Enabled = true;
             chkUseFrameBuffer.Enabled = false;
 
             cpu = new Cpu(iMem);
@@ -88,6 +89,13 @@ namespace Austin.PBConsoleFrontend
         private void chkUseFrameBuffer_CheckedChanged(object sender, EventArgs e)
         {
             vgaDev.UseFrameBuffer = chkUseFrameBuffer.Checked;
+        }
+
+        private void frmMain_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseButtons btns = MouseButtons.Left | MouseButtons.Middle | MouseButtons.Right;
+            if (e.Button == btns)
+                this.txtSrc.Text = Properties.Resources.Austin_Prog_ROM;
         }
     }
 }
