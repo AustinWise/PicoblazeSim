@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicoblazeSim", "PicoblazeSim\PicoblazeSim.csproj", "{93FB403C-951A-413F-8188-90416B91BF54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PBConsoleFrontend", "PBConsoleFrontend\PBConsoleFrontend.csproj", "{A0FEC3E9-5F11-492F-8319-1460BAEB3A1C}"
