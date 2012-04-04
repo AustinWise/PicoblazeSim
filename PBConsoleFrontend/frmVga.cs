@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Austin.PicoblazeSim;
+using System.Globalization;
 
 namespace Austin.PBConsoleFrontend
 {
@@ -104,12 +105,6 @@ namespace Austin.PBConsoleFrontend
             return val;
         }
 
-        protected override void OnResize(EventArgs e)
-        {
-            this.Text = this.Size.ToString();
-            base.OnResize(e);
-        }
-
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (this.Interrupt != null)
@@ -146,7 +141,7 @@ namespace Austin.PBConsoleFrontend
                 var dic = new Dictionary<byte, Action<byte>>();
                 dic.Add(0x0A, (data) => FB_LADD = data); //out: lower 8b address to FB
                 dic.Add(0x0B, (data) => FB_HADD = data); //out: upper 3b address to FB
-                dic.Add(0x0D, (data) => paint(data)); //out: color vector out to FB
+                dic.Add(0x0D, paint); //out: color vector out to FB
                 return dic;
             }
         }
@@ -179,7 +174,7 @@ namespace Austin.PBConsoleFrontend
             foreach (var line in Properties.Resources.KeysToScan.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
             {
                 string[] splitLine = line.Split(',');
-                consoleKeyToScanCodes.Add((Keys)Enum.Parse(typeof(Keys), splitLine[0]), byte.Parse(splitLine[1], System.Globalization.NumberStyles.HexNumber));
+                consoleKeyToScanCodes.Add((Keys)Enum.Parse(typeof(Keys), splitLine[0]), byte.Parse(splitLine[1], NumberStyles.HexNumber));
             }
         }
 

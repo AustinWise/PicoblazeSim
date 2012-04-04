@@ -81,9 +81,9 @@
             // 
             // txtSrc
             // 
-            this.txtSrc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSrc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSrc.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtSrc.Location = new System.Drawing.Point(199, 12);
             this.txtSrc.Multiline = true;
@@ -163,6 +163,7 @@
             this.Controls.Add(this.switches);
             this.Name = "frmMain";
             this.Text = "PicoBlaze on Nexys2 Simulator";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmMain_MouseMove);
             ((System.ComponentModel.ISupportInitialize)(this.txtSleepAfter)).EndInit();
             this.ResumeLayout(false);

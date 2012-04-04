@@ -43,7 +43,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(834, 637);
+            this.ControlBox = false;
+            this.MaximizeBox = false;
             this.Name = "frmVga";
+            this.ShowInTaskbar = false;
             this.Text = "VGA output and keyboard input";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);

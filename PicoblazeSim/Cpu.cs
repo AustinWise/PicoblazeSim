@@ -66,7 +66,7 @@ namespace Austin.PicoblazeSim
         }
 
         /// <summary>
-        /// States the CPU precessing insructions as fast as it can on a seperate thread.
+        /// Starts the CPU precessing instructions as fast as it can on a separate thread.
         /// </summary>
         public void Start()
         {

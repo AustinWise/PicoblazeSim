@@ -97,5 +97,13 @@ namespace Austin.PBConsoleFrontend
             if (e.Button == btns)
                 this.txtSrc.Text = Properties.Resources.Austin_Prog_ROM;
         }
+
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.cpu != null)
+            {
+                this.cpu.Reset();
+            }
+        }
     }
 }
