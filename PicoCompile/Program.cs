@@ -231,7 +231,7 @@ namespace Austin.PicoCompile
         private static uint[] compile(string path)
         {
             var comp = new Compiler();
-            var prog = comp.Compile(new StringReader(File.ReadAllText(@"d:\Down\proj\proj\prog_rom.psm")));
+            var prog = comp.Compile(new StringReader(File.ReadAllText(path)));
             var rom = new uint[PROGRAM_SIZE];
 
             for (ushort i = 0; i < PROGRAM_SIZE; i++)
