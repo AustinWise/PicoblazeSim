@@ -210,7 +210,6 @@ namespace Austin.PicoblazeSim
 
         private ArgumentType getArgType(string op, string value)
         {
-            byte res;
             if (op == ops.InterruptEnableFakeName || op == "RETURNI")
                 return ArgumentType.Bit;
             if (value.Length == 1)
@@ -251,9 +250,11 @@ namespace Austin.PicoblazeSim
             List<string[]> tokens = new List<string[]>();
 
             string line;
+            int lineNdx = 0;
             string addToFront = string.Empty; // for lables
             while ((line = reader.ReadLine()) != null)
             {
+                lineNdx++;
                 line = addToFront + line.ToUpper().Trim();
                 addToFront = string.Empty;
 
@@ -268,6 +269,7 @@ namespace Austin.PicoblazeSim
                     line = line.Remove(commentIndex);
 
                 // if a label is all by itself on a line, move it to in front of an instruction
+                line = line.Trim();
                 if (line.EndsWith(":"))
                 {
                     addToFront = line;
